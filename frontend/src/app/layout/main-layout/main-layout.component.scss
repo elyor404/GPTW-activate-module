@@ -31,6 +31,12 @@
   overflow-x: hidden;
   overflow-y: auto;
   background: #fff;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   @media (max-width: 640px) {
     padding: 1.5rem 1rem;
