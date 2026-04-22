@@ -1,6 +1,8 @@
 {
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/.*", "dest": "/" }
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/gptw-plus/browser",
+  "framework": null,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
