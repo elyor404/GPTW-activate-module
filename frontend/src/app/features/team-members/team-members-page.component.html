@@ -1,0 +1,160 @@
+<div class="team-management">
+  <header class="page-header">
+    <div class="page-header__text">
+      <h1 class="page-header__title">Team Management</h1>
+      <p class="page-header__subtitle">Manage team access, roles, and permissions</p>
+    </div>
+    <div class="page-header__actions">
+      <div class="search-box">
+        <svg class="search-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input
+          type="text"
+          class="search-box__input"
+          placeholder="Search by Name or Email"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        />
+      </div>
+      <button class="btn btn--primary">
+        <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        ADD USER
+      </button>
+    </div>
+  </header>
+
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th class="col-checkbox">
+            <input
+              type="checkbox"
+              [checked]="selectAll"
+              (change)="toggleSelectAll()"
+              class="checkbox"
+            />
+          </th>
+          <th class="col-name">Full Name & Email</th>
+          <th class="col-company">Assigned Company</th>
+          <th class="col-role">Role</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (member of teamMembers; track member.id) {
+          <tr>
+            <td class="col-checkbox">
+              <input
+                type="checkbox"
+                [(ngModel)]="member.selected"
+                (ngModelChange)="onCheckboxChange()"
+                class="checkbox"
+              />
+            </td>
+            <td class="col-name">
+              <div class="user-cell">
+                <img [src]="member.avatar" [alt]="member.name" class="user-cell__avatar" />
+                <div class="user-cell__info">
+                  <span class="user-cell__name">{{ member.name }}</span>
+                  <span class="user-cell__email">{{ member.email }}</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-company">{{ member.company }}</td>
+            <td class="col-role">
+              <span class="role-badge" [class.role-badge--admin]="member.role === 'GPTW Admin'" [class.role-badge--consultant]="member.role === 'Consultant'">
+                {{ member.role }}
+              </span>
+            </td>
+            <td class="col-actions">
+              <div class="action-buttons">
+                <button class="action-btn" title="Delete">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+                <button class="action-btn" title="Edit">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button
+      class="pagination__btn pagination__btn--nav"
+      [disabled]="currentPage() === 1"
+      (click)="goToPage(currentPage() - 1)"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+
+    @for (page of visiblePages; track page) {
+      <button
+        class="pagination__btn"
+        [class.pagination__btn--active]="page === currentPage()"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+    }
+
+    <button
+      class="pagination__btn pagination__btn--nav"
+      [disabled]="currentPage() === totalPages"
+      (click)="goToPage(currentPage() + 1)"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
+
+  @if (selectedCountSignal() > 0) {
+    <div class="selection-bar">
+      <div class="selection-bar__left">
+        <button class="selection-bar__close" (click)="clearSelection()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+        <span class="selection-bar__count">{{ selectedCountSignal() }} Selected</span>
+      </div>
+      <div class="selection-bar__right">
+        <button class="selection-bar__btn" (click)="onAssignCompany()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          ASSIGN COMPANY
+        </button>
+        <button class="selection-bar__btn selection-bar__btn--outlined" (click)="onDeleteSelected()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          DELETE
+        </button>
+        <button class="selection-bar__btn selection-bar__btn--outlined" (click)="onEditSelected()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+          </svg>
+          EDIT
+        </button>
+      </div>
+    </div>
+  }
+</div>

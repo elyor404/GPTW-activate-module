@@ -1,0 +1,146 @@
+<div class="edit-profile">
+  <div class="edit-profile__header">
+    <h1 class="edit-profile__title">Edit Profile</h1>
+    <p class="edit-profile__subtitle">Update your personal details and keep your profile information up to date.</p>
+  </div>
+
+  <section class="edit-profile__section">
+    <div class="profile-picture">
+      <img
+        class="profile-picture__img"
+        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face"
+        alt="Profile picture"
+      />
+      <button type="button" class="profile-picture__btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+        </svg>
+        CHANGE PICTURE
+      </button>
+    </div>
+
+    <form class="profile-form" (ngSubmit)="onSaveChanges()">
+      <div class="form-group">
+        <label class="form-label" for="fullName">
+          <span class="form-label__required">*</span> FULL NAME
+        </label>
+        <input
+          type="text"
+          id="fullName"
+          class="form-input"
+          [(ngModel)]="fullName"
+          name="fullName"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">
+          <span class="form-label__required">*</span> EMAIL ADDRESS
+        </label>
+        <input
+          type="email"
+          id="email"
+          class="form-input"
+          [(ngModel)]="email"
+          name="email"
+        />
+      </div>
+
+      <button type="submit" class="btn btn--disabled">SAVE CHANGES</button>
+    </form>
+  </section>
+
+  <section class="edit-profile__section">
+    <h2 class="section-title">Change Password</h2>
+
+    <form class="profile-form" (ngSubmit)="onChangePassword()">
+      <div class="form-group">
+        <label class="form-label" for="password">
+          <span class="form-label__required">*</span> PASSWORD
+        </label>
+        <div class="form-input-wrapper">
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            id="password"
+            class="form-input form-input--password"
+            placeholder="Placeholder"
+            [(ngModel)]="password"
+            name="password"
+          />
+          <button
+            type="button"
+            class="form-input__toggle"
+            (click)="togglePasswordVisibility()"
+            aria-label="Toggle password visibility"
+          >
+            @if (showPassword()) {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            } @else {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            }
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="confirmPassword">
+          <span class="form-label__required">*</span> CONFIRM PASSWORD
+        </label>
+        <div class="form-input-wrapper">
+          <input
+            [type]="showConfirmPassword() ? 'text' : 'password'"
+            id="confirmPassword"
+            class="form-input form-input--password"
+            placeholder="Placeholder"
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+          />
+          <button
+            type="button"
+            class="form-input__toggle"
+            (click)="toggleConfirmPasswordVisibility()"
+            aria-label="Toggle password visibility"
+          >
+            @if (showConfirmPassword()) {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            } @else {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            }
+          </button>
+        </div>
+      </div>
+
+      <div class="password-tips">
+        <p class="password-tips__title">Password Security Best Practices:</p>
+        <ul class="password-tips__list">
+          <li>Must include at least 1 uppercase and lowercase letter, number and symbol (e.g., !, @, #, $)</li>
+          <li>Avoid easy-to-guess words like birthdays or pet names</li>
+          <li>Update your password regularly for extra security</li>
+        </ul>
+      </div>
+
+      <button type="submit" class="btn btn--disabled">CHANGE PASSWORD</button>
+    </form>
+  </section>
+
+  <button type="button" class="btn btn--danger" (click)="openLogoutModal()">LOG OUT</button>
+</div>
+
+@if (showLogoutModal()) {
+  <app-logout-modal
+    (confirm)="confirmLogout()"
+    (cancel)="cancelLogout()"
+  />
+}
