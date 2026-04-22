@@ -40,12 +40,12 @@ export const routes: Routes = [
       {
         path: 'activate',
         children: [
-          { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+          { path: '', pathMatch: 'full', redirectTo: 'social-posts' },
           {
-            path: 'dashboard',
-            data: { title: 'Activate · Dashboard' },
+            path: 'social-posts',
+            data: { title: 'Activate · Social Posts' },
             loadComponent: () =>
-              import('./features/placeholder/placeholder-page.component').then((m) => m.PlaceholderPageComponent)
+              import('./features/activate/social-posts/social-posts-page.component').then((m) => m.SocialPostsPageComponent)
           },
           {
             path: 'activate-plus',
@@ -54,8 +54,8 @@ export const routes: Routes = [
               import('./features/placeholder/placeholder-page.component').then((m) => m.PlaceholderPageComponent)
           },
           {
-            path: 'create-post',
-            data: { title: 'Create Post' },
+            path: 'brand-centre',
+            data: { title: 'Brand Centre' },
             loadComponent: () =>
               import('./features/placeholder/placeholder-page.component').then((m) => m.PlaceholderPageComponent)
           }
