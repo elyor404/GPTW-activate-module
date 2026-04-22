@@ -78,24 +78,6 @@ export class TeamMembersPageComponent {
       company: 'Bernhard - Leschke',
       role: 'Consultant',
       selected: false
-    },
-    {
-      id: 7,
-      name: 'Louvenia Steuber',
-      email: 'louvenia.steuber@gmail.com',
-      avatar: 'https://randomuser.me/api/portraits/women/33.jpg',
-      company: 'Strosin, Tromp and Weber',
-      role: 'Consultant',
-      selected: false
-    },
-    {
-      id: 8,
-      name: 'Delora Jast',
-      email: 'delora.jast@gmail.com',
-      avatar: 'https://randomuser.me/api/portraits/women/55.jpg',
-      company: 'Schmeler, Corkery and Winthei...',
-      role: 'GPTW Admin',
-      selected: false
     }
   ];
 
