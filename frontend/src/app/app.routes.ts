@@ -57,7 +57,7 @@ export const routes: Routes = [
             path: 'brand-centre',
             data: { title: 'Brand Centre' },
             loadComponent: () =>
-              import('./features/placeholder/placeholder-page.component').then((m) => m.PlaceholderPageComponent)
+              import('./features/activate/brand-centre/brand-centre-page.component').then((m) => m.BrandCentrePageComponent)
           }
         ]
       },
