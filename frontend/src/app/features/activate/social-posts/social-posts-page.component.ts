@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 interface SocialPost {
   id: number;
@@ -18,6 +19,7 @@ interface SocialPost {
   styleUrl: './social-posts-page.component.scss'
 })
 export class SocialPostsPageComponent {
+  constructor(private router: Router) {}
   
   posts: SocialPost[] = [
     { id: 1, image: '/posts/post1.svg', category: 'Best Workplace', status: 'draft', backgroundColor: '#E8472A', aspectRatio: '1 / 1' },
@@ -41,5 +43,9 @@ export class SocialPostsPageComponent {
 
   get publishedPosts(): SocialPost[] {
     return this.posts.filter(p => p.status === 'published');
+  }
+
+  createNewPost(): void {
+    this.router.navigate(['/activate/create-post']);
   }
 }

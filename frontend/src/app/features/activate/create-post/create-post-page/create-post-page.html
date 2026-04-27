@@ -1,0 +1,217 @@
+<div class="create-post">
+  <div class="create-post__main">
+    <!-- Header -->
+    <div class="page-header">
+      <h1 class="page-header__title">Create Post</h1>
+      <p class="page-header__subtitle">Browse our free templates or create your own templates</p>
+    </div>
+
+    <!-- Post Description -->
+    <div class="section">
+      <textarea
+        class="post-description"
+        [(ngModel)]="postDescription"
+        placeholder="Post Description"
+        rows="4"
+      ></textarea>
+    </div>
+
+    <!-- Post Type -->
+    <div class="section">
+      <h3 class="section__title">Post Type:</h3>
+      <div class="type-cards">
+        <button
+          class="type-card"
+          [class.type-card--selected]="selectedPostType === 'text'"
+          (click)="selectPostType('text')"
+        >
+          <span class="type-card__icon type-card__icon--text">T</span>
+          <span class="type-card__label">Text</span>
+        </button>
+        <button
+          class="type-card"
+          [class.type-card--selected]="selectedPostType === 'image'"
+          (click)="selectPostType('image')"
+        >
+          <svg class="type-card__icon-svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+          </svg>
+          <span class="type-card__label">Image</span>
+        </button>
+        <button
+          class="type-card"
+          [class.type-card--selected]="selectedPostType === 'video'"
+          (click)="selectPostType('video')"
+        >
+          <svg class="type-card__icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="5" width="18" height="14" rx="2"/>
+            <polygon points="10,8 16,12 10,16" fill="currentColor"/>
+          </svg>
+          <span class="type-card__label">Video</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Select Size -->
+    <div class="section">
+      <h3 class="section__title">Select Size:</h3>
+      <div class="size-cards">
+        <button
+          class="size-card"
+          [class.size-card--selected]="selectedSize === 'story'"
+          (click)="selectSize('story')"
+        >
+          <div class="size-card__icon">
+            <span class="size-card__line"></span>
+            <span class="size-card__line"></span>
+            <span class="size-card__line"></span>
+          </div>
+          <span class="size-card__label">Story</span>
+        </button>
+        <button
+          class="size-card"
+          [class.size-card--selected]="selectedSize === 'landscape'"
+          (click)="selectSize('landscape')"
+        >
+          <div class="size-card__icon">
+            <span class="size-card__line"></span>
+            <span class="size-card__line"></span>
+            <span class="size-card__line"></span>
+          </div>
+          <span class="size-card__label">Landscape</span>
+        </button>
+        <button
+          class="size-card"
+          [class.size-card--selected]="selectedSize === 'square'"
+          (click)="selectSize('square')"
+        >
+          <div class="size-card__icon">
+            <span class="size-card__line"></span>
+            <span class="size-card__line"></span>
+            <span class="size-card__line"></span>
+          </div>
+          <span class="size-card__label">Square</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Select Template -->
+    <div class="section">
+      <h3 class="section__title">Select Template:</h3>
+      <div class="template-grid">
+        @for (template of templates; track template.id) {
+          <div
+            class="template-card"
+            [class.template-card--selected]="selectedTemplate === template.id"
+            (click)="selectTemplate(template.id)"
+          >
+            <img [src]="template.imageUrl" [alt]="'Template ' + template.id" class="template-card__image" />
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Select Colour -->
+    <div class="section">
+      <h3 class="section__title">Select Colour:</h3>
+      <div class="colour-grid">
+        @for (colour of colours; track colour) {
+          <button
+            class="colour-swatch"
+            [class.colour-swatch--selected]="selectedColour === colour"
+            [style.backgroundColor]="colour"
+            (click)="selectColour(colour)"
+          ></button>
+        }
+      </div>
+    </div>
+
+    <!-- Select Badge -->
+    <div class="section">
+      <h3 class="section__title">Select Badge:</h3>
+      <div class="badge-grid">
+        @for (badge of badges; track badge.id) {
+          <div
+            class="badge-card"
+            [class.badge-card--selected]="selectedBadge === badge.id"
+            [style.backgroundColor]="badge.bgColor"
+            (click)="selectBadge(badge.id)"
+          >
+            <span class="badge-card__title" [style.color]="badge.textColor">Great<br>Place<br>To<br>Work.</span>
+            <div class="badge-card__bottom">
+              <span class="badge-card__certified" [style.color]="badge.certColor">Certified</span>
+              <span class="badge-card__year" [style.color]="badge.certColor">2025</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Select Logo -->
+    <div class="section">
+      <h3 class="section__title">Select Logo:</h3>
+      <div class="logo-grid">
+        <div
+          class="logo-card"
+          [class.logo-card--selected]="selectedLogo === 'vention'"
+          (click)="selectLogo('vention')"
+        >
+          <span class="logo-card__vention">vention</span>
+        </div>
+        <div
+          class="logo-card logo-card--badge"
+          [class.logo-card--selected]="selectedLogo === 'gptw'"
+          (click)="selectLogo('gptw')"
+        >
+          <div class="logo-card__gptw">
+            <span class="logo-card__gptw-text">Great<br>Place<br>To<br>Work.</span>
+          </div>
+        </div>
+        <label class="logo-card logo-card--add">
+          <span class="logo-card__plus">+</span>
+          <span class="logo-card__label">Add Logo</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Select/Upload File -->
+    <div class="section">
+      <h3 class="section__title">Select/Upload File:</h3>
+      <div class="file-grid">
+        @for (file of uploadedFiles; track file.id) {
+          <div class="file-card">
+            @if (file.type === 'video') {
+              <video [src]="file.url" class="file-card__media"></video>
+            } @else {
+              <img [src]="file.url" alt="Uploaded file" class="file-card__media" />
+            }
+            <button class="file-card__remove" (click)="removeUploadedFile(file.id)">×</button>
+          </div>
+        }
+        <label class="file-card file-card--add">
+          <input
+            type="file"
+            accept="image/*,video/*"
+            (change)="onFileUpload($event)"
+            style="display: none;"
+          />
+          <span class="file-card__plus">+</span>
+          <span class="file-card__label">Add Photo or Video</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Sidebar Actions -->
+  <div class="create-post__sidebar">
+    <button class="action-btn action-btn--ai" (click)="useAI()">
+      <span class="action-btn__sparkle">✦</span> USE AI
+    </button>
+    <button class="action-btn action-btn--primary" (click)="createOrSchedule()">
+      CREATE / SCHEDULE
+    </button>
+    <button class="action-btn action-btn--secondary" (click)="preview()">
+      PREVIEW
+    </button>
+  </div>
+</div>
