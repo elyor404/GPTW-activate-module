@@ -57,7 +57,7 @@
       <h3 class="section__title">Select Size:</h3>
       <div class="size-cards">
         <button
-          class="size-card"
+          class="size-card size-card--story"
           [class.size-card--selected]="selectedSize === 'story'"
           (click)="selectSize('story')"
         >
@@ -69,7 +69,7 @@
           <span class="size-card__label">Story</span>
         </button>
         <button
-          class="size-card"
+          class="size-card size-card--landscape"
           [class.size-card--selected]="selectedSize === 'landscape'"
           (click)="selectSize('landscape')"
         >
@@ -81,7 +81,7 @@
           <span class="size-card__label">Landscape</span>
         </button>
         <button
-          class="size-card"
+          class="size-card size-card--square"
           [class.size-card--selected]="selectedSize === 'square'"
           (click)="selectSize('square')"
         >
@@ -130,20 +130,41 @@
     <div class="section">
       <h3 class="section__title">Select Badge:</h3>
       <div class="badge-grid">
-        @for (badge of badges; track badge.id) {
-          <div
-            class="badge-card"
-            [class.badge-card--selected]="selectedBadge === badge.id"
-            [style.backgroundColor]="badge.bgColor"
-            (click)="selectBadge(badge.id)"
-          >
-            <span class="badge-card__title" [style.color]="badge.textColor">Great<br>Place<br>To<br>Work.</span>
-            <div class="badge-card__bottom">
-              <span class="badge-card__certified" [style.color]="badge.certColor">Certified</span>
-              <span class="badge-card__year" [style.color]="badge.certColor">2025</span>
-            </div>
-          </div>
-        }
+        <div
+          class="badge-card-img"
+          [class.badge-card-img--selected]="selectedBadge === '1'"
+          (click)="selectBadge('1')"
+        >
+          <img src="/badges/gptw-certified-2025.png" alt="GPTW Certified 2025" class="badge-card-img__image" />
+        </div>
+        <div
+          class="badge-card-img"
+          [class.badge-card-img--selected]="selectedBadge === '2'"
+          (click)="selectBadge('2')"
+        >
+          <img src="/badges/gptw-certified-2025.png" alt="GPTW Certified 2025" class="badge-card-img__image" />
+        </div>
+        <div
+          class="badge-card-img"
+          [class.badge-card-img--selected]="selectedBadge === '3'"
+          (click)="selectBadge('3')"
+        >
+          <img src="/badges/gptw-certified-2025.png" alt="GPTW Certified 2025" class="badge-card-img__image" />
+        </div>
+        <div
+          class="badge-card-img"
+          [class.badge-card-img--selected]="selectedBadge === '4'"
+          (click)="selectBadge('4')"
+        >
+          <img src="/badges/gptw-certified-2025.png" alt="GPTW Certified 2025" class="badge-card-img__image" />
+        </div>
+        <div
+          class="badge-card-img"
+          [class.badge-card-img--selected]="selectedBadge === '5'"
+          (click)="selectBadge('5')"
+        >
+          <img src="/badges/gptw-certified-2025.png" alt="GPTW Certified 2025" class="badge-card-img__image" />
+        </div>
       </div>
     </div>
 

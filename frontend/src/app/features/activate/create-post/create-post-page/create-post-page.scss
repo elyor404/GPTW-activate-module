@@ -1,11 +1,12 @@
 .create-post {
   display: flex;
+  justify-content: center;
   gap: 2rem;
   padding: 1.5rem 2%;
   min-height: 100%;
 
   &__main {
-    flex: 1;
+    flex: 0 1 700px;
     max-width: 700px;
   }
 
@@ -17,7 +18,8 @@
     position: sticky;
     top: 1.5rem;
     height: fit-content;
-    margin-left: 5rem;
+    margin-left: 3rem;
+    margin-right: 2rem;
   }
 }
 
@@ -89,11 +91,17 @@
 
   &:hover {
     border-color: #CBD5E0;
+    background: #F7FAFC;
   }
 
   &--selected {
     border-color: #2D3748;
     border-width: 2px;
+    background: #F0F4F8;
+
+    &:hover {
+      background: #E2E8F0;
+    }
   }
 
   &__icon {
@@ -119,6 +127,7 @@
 .size-cards {
   display: flex;
   gap: 0.75rem;
+  align-items: flex-end;
 }
 
 .size-card {
@@ -127,8 +136,6 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  width: 100px;
-  height: 110px;
   background: #fff;
   border: 1px solid #E2E8F0;
   border-radius: 8px;
@@ -137,11 +144,32 @@
 
   &:hover {
     border-color: #CBD5E0;
+    background: #F7FAFC;
   }
 
   &--selected {
     border-color: #2D3748;
     border-width: 2px;
+    background: #F0F4F8;
+
+    &:hover {
+      background: #E2E8F0;
+    }
+  }
+
+  &--story {
+    width: 80px;
+    height: 140px;
+  }
+
+  &--landscape {
+    width: 140px;
+    height: 90px;
+  }
+
+  &--square {
+    width: 100px;
+    height: 100px;
   }
 
   &__icon {
@@ -227,19 +255,13 @@
   flex-wrap: wrap;
 }
 
-.badge-card {
-  width: 70px;
-  height: 90px;
+.badge-card-img {
+  width: 80px;
   border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
   cursor: pointer;
   border: 2px solid transparent;
   transition: border-color 0.15s ease;
-  padding: 0.4rem;
-  text-align: center;
 
   &:hover {
     border-color: #CBD5E0;
@@ -249,27 +271,10 @@
     border-color: #5BA6A6;
   }
 
-  &__title {
-    font-size: 0.5rem;
-    font-weight: 700;
-    line-height: 1.1;
-    margin-bottom: 0.25rem;
-  }
-
-  &__bottom {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  &__certified {
-    font-size: 0.45rem;
-    font-weight: 500;
-  }
-
-  &__year {
-    font-size: 0.45rem;
-    font-weight: 500;
+  &__image {
+    width: 100%;
+    height: auto;
+    display: block;
   }
 }
 
