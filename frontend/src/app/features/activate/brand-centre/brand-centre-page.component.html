@@ -43,138 +43,74 @@
           <div class="brand-section__content" [formGroup]="brandKitForm">
             
             <!-- 1.1 LOGOS -->
-            <div class="brand-field">
-              <label class="brand-field__label">Logos</label>
-              <div class="brand-field__logos">
-                @for (logo of brandCentre.logos; track logo.id) {
-                  <div class="logo-card">
-                    <img [src]="logo.url" [alt]="logo.name" class="logo-card__image" />
-                    <button class="logo-card__delete" (click)="deleteLogo(logo.id)" title="Remove logo">×</button>
-                  </div>
-                }
-                <button class="add-btn add-btn--logo" (click)="triggerLogoUpload()">
-                  + Add another logo
-                </button>
-                <input
-                  type="file"
-                  accept="image/*"
-                  #logoInput
-                  (change)="onLogoUpload($event)"
-                  style="display: none;"
-                />
-              </div>
-            </div>
-
-            <!-- 1.2 FAVICONS -->
-            <div class="brand-field">
-              <label class="brand-field__label">Favicon</label>
-              <div class="brand-field__favicons">
-                <div class="favicon-box" (click)="triggerFaviconUpload()">
-                  @if (brandCentre.favicon) {
-                    <img [src]="brandCentre.favicon.url" alt="Favicon" class="favicon-box__image" />
-                  } @else {
-                    <span class="favicon-box__placeholder">+</span>
+            <div class="brand-row">
+              <label class="brand-row__label">Logos</label>
+              <div class="brand-row__content">
+                <div class="logos-row">
+                  @for (logo of brandCentre.logos; track logo.id) {
+                    <div class="logo-card-light">
+                      <img [src]="logo.url" [alt]="logo.name" class="logo-card-light__image" />
+                      <button class="logo-card-light__delete" (click)="deleteLogo(logo.id)">×</button>
+                    </div>
                   }
+                  <button class="add-link" (click)="triggerLogoUpload()">+ Add logo</button>
                 </div>
-                <span class="favicon-hint">Click to upload (PNG, SVG, ICO)</span>
-                <input
-                  type="file"
-                  accept="image/png,image/svg+xml,image/x-icon"
-                  #faviconInput
-                  (change)="onFaviconUpload($event)"
-                  style="display: none;"
-                />
+                <input type="file" accept="image/*" #logoInput (change)="onLogoUpload($event)" style="display: none;" />
               </div>
             </div>
 
-            <!-- 1.3 WEBSITE URL -->
-            <div class="brand-field">
-              <label class="brand-field__label">Website URL</label>
-              <input
-                type="text"
-                class="brand-field__input"
-                formControlName="websiteUrl"
-                (blur)="onWebsiteUrlBlur()"
-                placeholder="https://yourcompany.com"
-              />
-              @if (brandKitForm.get('websiteUrl')?.invalid && brandKitForm.get('websiteUrl')?.touched) {
-                <span class="brand-field__error">Please enter a valid URL starting with http(s)://</span>
-              }
-            </div>
-
-            <!-- 1.4 COLOURS -->
-            <div class="brand-field">
-              <label class="brand-field__label">Colours</label>
-              <div class="brand-field__colours">
-                @for (colour of brandCentre.colours; track $index; let i = $index) {
-                  <div class="colour-swatch-wrapper">
-                    <input
-                      type="color"
-                      [value]="colour"
-                      (input)="onColourChange(i, $event)"
-                      class="colour-picker-hidden"
-                    />
-                    <div class="colour-swatch" [style.backgroundColor]="colour"></div>
-                    <button class="colour-swatch__delete" (click)="removeColour(i)">×</button>
-                  </div>
-                }
-                <button class="add-btn add-btn--circle" (click)="addColour()">+</button>
-              </div>
-              
-              <div class="colour-palette">
-                <span class="colour-palette__label">Preset colours:</span>
-                <div class="colour-palette__row">
-                  @for (preset of presetColours; track preset) {
-                    <button
-                      class="colour-preset"
-                      [style.backgroundColor]="preset"
-                      [class.colour-preset--light]="preset === '#FFFFFF' || preset === '#CCCCCC'"
-                      (click)="addPresetColour(preset)"
-                      title="Add {{ preset }}"
-                    ></button>
-                  }
+            <!-- 1.2 WEBSITE URL -->
+            <div class="brand-row">
+              <label class="brand-row__label">Website URL</label>
+              <div class="brand-row__content">
+                <div class="url-field">
+                  <input
+                    type="text"
+                    class="url-field__input"
+                    formControlName="websiteUrl"
+                    (blur)="onWebsiteUrlBlur()"
+                    placeholder="https://yourcompany.com"
+                  />
                 </div>
               </div>
             </div>
 
-            <!-- 1.5 FONTS -->
-            <div class="brand-field">
-              <label class="brand-field__label">Fonts</label>
-              <div class="brand-field__fonts">
-                <div class="font-item">
-                  <span class="font-item__label">Primary</span>
-                  <select
-                    formControlName="primaryFont"
-                    (change)="onPrimaryFontChange($event)"
-                    class="font-select"
-                  >
+            <!-- 1.3 COLOURS -->
+            <div class="brand-row">
+              <label class="brand-row__label">Colors</label>
+              <div class="brand-row__content">
+                <div class="colors-row">
+                  @for (colour of brandCentre.colours; track $index; let i = $index) {
+                    <div class="color-item">
+                      <div class="color-circle-wrap">
+                        <input type="color" [value]="colour" (input)="onColourChange(i, $event)" class="color-input-hidden" />
+                        <div class="color-circle" [style.backgroundColor]="colour"></div>
+                      </div>
+                      <button class="color-trash" (click)="removeColour(i)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                        </svg>
+                      </button>
+                    </div>
+                  }
+                  <button class="color-add" (click)="addColour()">
+                    <span>+</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 1.4 FONTS -->
+            <div class="brand-row">
+              <label class="brand-row__label">Fonts</label>
+              <div class="brand-row__content">
+                <div class="font-row">
+                  <select formControlName="primaryFont" (change)="onPrimaryFontChange($event)" class="font-dropdown">
                     @for (font of availableFonts; track font) {
                       <option [value]="font">{{ font }}</option>
                     }
                   </select>
-                  <div class="font-item__preview" [style.fontFamily]="brandCentre.primaryFont + ', sans-serif'">
-                    <div class="font-preview__name">{{ brandCentre.primaryFont }}</div>
-                    <div class="font-preview__sample">Aa Bb Cc</div>
-                    <div class="font-preview__alphabet">A B C D E F G H I J K L M</div>
-                  </div>
-                </div>
-
-                <div class="font-item">
-                  <span class="font-item__label">Other</span>
-                  <select
-                    formControlName="secondaryFont"
-                    (change)="onSecondaryFontChange($event)"
-                    class="font-select"
-                  >
-                    @for (font of availableFonts; track font) {
-                      <option [value]="font">{{ font }}</option>
-                    }
-                  </select>
-                  <div class="font-item__preview" [style.fontFamily]="brandCentre.secondaryFont + ', sans-serif'">
-                    <div class="font-preview__name">{{ brandCentre.secondaryFont }}</div>
-                    <div class="font-preview__sample">Aa Bb Cc</div>
-                    <div class="font-preview__alphabet">A B C D E F G H I J K L M</div>
-                  </div>
+                  <button class="add-link">+ Add a custom font</button>
                 </div>
               </div>
             </div>
@@ -186,197 +122,149 @@
              ═══════════════════════════════════════════════════════ -->
         <section class="brand-section">
           <h2 class="brand-section__title">Brand Voice</h2>
-          <p class="brand-section__desc">Define the tone and personality of your brand communications.</p>
+          <p class="brand-section__desc">Define how your brand communicates across all content.</p>
 
           <div class="brand-section__content">
-            
             <!-- 2.1 PERSONALITY -->
-            <div class="brand-field">
-              <label class="brand-field__label">Personality</label>
-              <div class="chips-container">
-                @for (word of brandCentre.brandVoice.personality; track $index; let i = $index) {
-                  <span class="chip">
-                    {{ word }}
-                    <button class="chip__delete" (click)="removePersonality(i)">×</button>
-                  </span>
-                }
-                @if (addingPersonality) {
-                  <div class="chip-input-wrapper">
-                    <input
-                      type="text"
-                      [(ngModel)]="newPersonalityInput"
-                      (keydown)="onPersonalityKeydown($event)"
-                      placeholder="Type and press Enter"
-                      class="chip-input"
-                      autofocus
-                    />
-                    <button class="chip-input__save" (click)="savePersonality()">✓</button>
-                    <button class="chip-input__cancel" (click)="cancelAddPersonality()">×</button>
-                  </div>
-                } @else {
-                  <button class="add-chip-btn" (click)="startAddPersonality()">+ Add</button>
-                }
+            <div class="brand-row">
+              <label class="brand-row__label">Personality</label>
+              <div class="brand-row__content brand-row__content--row">
+                <div class="bullet-list">
+                  @for (word of brandCentre.brandVoice.personality; track $index; let i = $index) {
+                    <div class="bullet-item">
+                      <span>• {{ word }}</span>
+                      <button class="bullet-item__x" (click)="removePersonality(i)">×</button>
+                    </div>
+                  }
+                  @if (addingPersonality) {
+                    <div class="bullet-item bullet-item--input">
+                      <span>•</span>
+                      <input type="text" [(ngModel)]="newPersonalityInput" (keydown)="onPersonalityKeydown($event)" placeholder="Type..." autofocus />
+                      <button class="inline-edit__save" (click)="savePersonality()">✓</button>
+                      <button class="inline-edit__cancel" (click)="cancelAddPersonality()">×</button>
+                    </div>
+                  }
+                </div>
+                <button class="outline-btn" (click)="startAddPersonality()">+ Add</button>
               </div>
             </div>
 
             <!-- 2.2 DEFAULT TONE -->
-            <div class="brand-field">
-              <label class="brand-field__label">Default Tone</label>
-              <div class="chips-container">
-                @for (word of brandCentre.brandVoice.defaultTone; track $index; let i = $index) {
-                  <span class="chip">
-                    {{ word }}
-                    <button class="chip__delete" (click)="removeTone(i)">×</button>
-                  </span>
-                }
-                @if (addingTone) {
-                  <div class="chip-input-wrapper">
-                    <input
-                      type="text"
-                      [(ngModel)]="newToneInput"
-                      (keydown)="onToneKeydown($event)"
-                      placeholder="Type and press Enter"
-                      class="chip-input"
-                      autofocus
-                    />
-                    <button class="chip-input__save" (click)="saveTone()">✓</button>
-                    <button class="chip-input__cancel" (click)="cancelAddTone()">×</button>
-                  </div>
-                } @else {
-                  <button class="add-chip-btn" (click)="startAddTone()">+ Add</button>
-                }
+            <div class="brand-row">
+              <label class="brand-row__label">Default Tone</label>
+              <div class="brand-row__content brand-row__content--row">
+                <div class="bullet-list">
+                  @for (word of brandCentre.brandVoice.defaultTone; track $index; let i = $index) {
+                    <div class="bullet-item">
+                      <span>• {{ word }}</span>
+                      <button class="bullet-item__x" (click)="removeTone(i)">×</button>
+                    </div>
+                  }
+                  @if (addingTone) {
+                    <div class="bullet-item bullet-item--input">
+                      <span>•</span>
+                      <input type="text" [(ngModel)]="newToneInput" (keydown)="onToneKeydown($event)" placeholder="Type..." autofocus />
+                      <button class="inline-edit__save" (click)="saveTone()">✓</button>
+                      <button class="inline-edit__cancel" (click)="cancelAddTone()">×</button>
+                    </div>
+                  }
+                </div>
+                <button class="outline-btn" (click)="startAddTone()">+ Add</button>
               </div>
             </div>
 
             <!-- 2.3 MISSION -->
-            <div class="brand-field">
-              <label class="brand-field__label">Mission</label>
-              <textarea
-                [formControl]="missionControl"
-                (blur)="onMissionBlur()"
-                rows="4"
-                class="brand-field__textarea"
-                placeholder="Enter your mission statement..."
-              ></textarea>
-              <span class="brand-field__counter">{{ missionControl.value?.length ?? 0 }} / 500</span>
+            <div class="brand-row">
+              <label class="brand-row__label">Mission</label>
+              <div class="brand-row__content">
+                <textarea
+                  [formControl]="missionControl"
+                  (blur)="onMissionBlur()"
+                  rows="5"
+                  class="mission-textarea"
+                  placeholder="Enter your mission statement..."
+                ></textarea>
+              </div>
             </div>
 
             <!-- 2.4 TERMS TO AVOID -->
-            <div class="brand-field">
-              <label class="brand-field__label brand-field__label--orange">Terms To Avoid</label>
-              <div class="list-items">
-                @for (term of brandCentre.brandVoice.termsToAvoid; track $index; let i = $index) {
-                  <div class="list-item">
-                    <span class="list-item__bullet">•</span>
-                    <span class="list-item__text">{{ term }}</span>
-                    <button class="list-item__delete" (click)="removeTermToAvoid(i)">×</button>
-                  </div>
-                }
-                @if (addingTermToAvoid) {
-                  <div class="list-item list-item--editing">
-                    <input
-                      type="text"
-                      [(ngModel)]="newTermToAvoid"
-                      (keydown)="onTermToAvoidKeydown($event)"
-                      placeholder="Enter term..."
-                      class="list-item__input"
-                      autofocus
-                    />
-                    <button class="list-item__save" (click)="saveTermToAvoid()">✓</button>
-                    <button class="list-item__cancel" (click)="cancelAddTermToAvoid()">×</button>
-                  </div>
-                }
-                @if (brandCentre.brandVoice.termsToAvoid.length === 0 && !addingTermToAvoid) {
-                  <span class="list-empty">—</span>
-                }
+            <div class="brand-row">
+              <label class="brand-row__label">Terms to Avoid</label>
+              <div class="brand-row__content brand-row__content--row">
+                <div class="row-value">
+                  @if (brandCentre.brandVoice.termsToAvoid.length === 0 && !addingTermToAvoid) {
+                    <span class="dash">—</span>
+                  }
+                  @for (term of brandCentre.brandVoice.termsToAvoid; track $index; let i = $index) {
+                    <span class="value-item">{{ term }}<button class="value-item__x" (click)="removeTermToAvoid(i)">×</button></span>
+                  }
+                  @if (addingTermToAvoid) {
+                    <span class="inline-edit">
+                      <input type="text" [(ngModel)]="newTermToAvoid" (keydown)="onTermToAvoidKeydown($event)" placeholder="Enter term..." autofocus />
+                      <button class="inline-edit__save" (click)="saveTermToAvoid()">✓</button>
+                      <button class="inline-edit__cancel" (click)="cancelAddTermToAvoid()">×</button>
+                    </span>
+                  }
+                </div>
+                <button class="outline-btn" (click)="startAddTermToAvoid()">+ Add</button>
               </div>
-              <button class="add-btn" (click)="startAddTermToAvoid()">Add</button>
             </div>
 
             <!-- 2.5 REPLACEMENT RULES -->
-            <div class="brand-field">
-              <label class="brand-field__label brand-field__label--orange">
-                Replacement Rules
-                <span class="brand-field__sublabel">(Case-Sensitive)</span>
-              </label>
-              <div class="list-items">
-                @for (rule of brandCentre.brandVoice.replacementRules; track $index; let i = $index) {
-                  <div class="list-item">
-                    <span class="list-item__rule">
-                      "{{ rule.from }}" → "{{ rule.to }}"
-                      @if (rule.caseSensitive) {
-                        <span class="list-item__case">(case-sensitive)</span>
-                      }
+            <div class="brand-row">
+              <label class="brand-row__label">Replacement Rules<br><span class="label-sub">(Case-Sensitive)</span></label>
+              <div class="brand-row__content brand-row__content--row">
+                <div class="row-value">
+                  @if (brandCentre.brandVoice.replacementRules.length === 0 && !addingReplacementRule) {
+                    <span class="dash">—</span>
+                  }
+                  @for (rule of brandCentre.brandVoice.replacementRules; track $index; let i = $index) {
+                    <span class="value-item">"{{ rule.from }}" → "{{ rule.to }}"<button class="value-item__x" (click)="removeReplacementRule(i)">×</button></span>
+                  }
+                  @if (addingReplacementRule) {
+                    <span class="rule-edit">
+                      <input type="text" [(ngModel)]="newRuleFrom" placeholder="Replace..." />
+                      <span>→</span>
+                      <input type="text" [(ngModel)]="newRuleTo" placeholder="With..." />
+                      <button class="inline-edit__save" (click)="saveReplacementRule()">✓</button>
+                      <button class="inline-edit__cancel" (click)="cancelAddReplacementRule()">×</button>
                     </span>
-                    <button class="list-item__delete" (click)="removeReplacementRule(i)">×</button>
-                  </div>
-                }
-                @if (addingReplacementRule) {
-                  <div class="rule-edit-row">
-                    <input
-                      type="text"
-                      [(ngModel)]="newRuleFrom"
-                      placeholder="Replace this..."
-                      class="rule-input"
-                    />
-                    <span class="rule-arrow">→</span>
-                    <input
-                      type="text"
-                      [(ngModel)]="newRuleTo"
-                      placeholder="...with this"
-                      class="rule-input"
-                    />
-                    <label class="rule-checkbox">
-                      <input type="checkbox" [(ngModel)]="newRuleCaseSensitive" />
-                      Case-sensitive
-                    </label>
-                    <button class="list-item__save" (click)="saveReplacementRule()">✓</button>
-                    <button class="list-item__cancel" (click)="cancelAddReplacementRule()">×</button>
-                  </div>
-                }
-                @if (brandCentre.brandVoice.replacementRules.length === 0 && !addingReplacementRule) {
-                  <span class="list-empty">—</span>
-                }
+                  }
+                </div>
+                <button class="outline-btn" (click)="startAddReplacementRule()">+ Add</button>
               </div>
-              <button class="add-btn" (click)="startAddReplacementRule()">Add</button>
             </div>
 
             <!-- 2.6 INCLUSIVITY -->
-            <div class="brand-field">
-              <label class="brand-field__label brand-field__label--orange">Inclusivity</label>
-              <div class="list-items">
-                @for (item of brandCentre.brandVoice.inclusivityGuidelines; track $index; let i = $index) {
-                  <div class="list-item">
-                    <span class="list-item__bullet">•</span>
-                    <span class="list-item__text">{{ item }}</span>
-                    <button class="list-item__delete" (click)="removeInclusivity(i)">×</button>
-                  </div>
-                }
-                @if (addingInclusivity) {
-                  <div class="list-item list-item--editing">
-                    <input
-                      type="text"
-                      [(ngModel)]="newInclusivity"
-                      (keydown)="onInclusivityKeydown($event)"
-                      placeholder="Enter guideline..."
-                      class="list-item__input"
-                      autofocus
-                    />
-                    <button class="list-item__save" (click)="saveInclusivity()">✓</button>
-                    <button class="list-item__cancel" (click)="cancelAddInclusivity()">×</button>
-                  </div>
-                }
-                @if (brandCentre.brandVoice.inclusivityGuidelines.length === 0 && !addingInclusivity) {
-                  <span class="list-empty">—</span>
-                }
+            <div class="brand-row">
+              <label class="brand-row__label">Inclusivity</label>
+              <div class="brand-row__content brand-row__content--row">
+                <div class="row-value">
+                  @if (brandCentre.brandVoice.inclusivityGuidelines.length === 0 && !addingInclusivity) {
+                    <span class="dash">—</span>
+                  }
+                  @for (item of brandCentre.brandVoice.inclusivityGuidelines; track $index; let i = $index) {
+                    <span class="value-item">{{ item }}<button class="value-item__x" (click)="removeInclusivity(i)">×</button></span>
+                  }
+                  @if (addingInclusivity) {
+                    <span class="inline-edit">
+                      <input type="text" [(ngModel)]="newInclusivity" (keydown)="onInclusivityKeydown($event)" placeholder="Enter guideline..." autofocus />
+                      <button class="inline-edit__save" (click)="saveInclusivity()">✓</button>
+                      <button class="inline-edit__cancel" (click)="cancelAddInclusivity()">×</button>
+                    </span>
+                  }
+                </div>
+                <button class="outline-btn" (click)="startAddInclusivity()">+ Add</button>
               </div>
-              <button class="add-btn" (click)="startAddInclusivity()">Add</button>
             </div>
 
             <!-- 2.7 DELETE BRAND VOICE -->
-            <button class="btn btn--text-danger" (click)="openDeleteVoiceModal()">
-              Delete my brand voice
-            </button>
+            <div class="brand-row brand-row--end">
+              <div class="brand-row__label"></div>
+              <div class="brand-row__content">
+                <button class="delete-link" (click)="openDeleteVoiceModal()">Delete my brand voice</button>
+              </div>
+            </div>
           </div>
         </section>
       </div>
@@ -431,6 +319,11 @@
           style="display: none;"
         />
       </section>
+
+      <!-- SAVE BUTTON -->
+      <div class="page-actions">
+        <button class="save-all-btn" (click)="saveAllInfo()">Save All Information</button>
+      </div>
     </div>
   }
 
@@ -445,6 +338,14 @@
           <button class="btn btn--danger" (click)="confirmDeleteBrandVoice()">Delete</button>
         </div>
       </div>
+    </div>
+  }
+
+  <!-- Save Snackbar -->
+  @if (showSaveSnackbar) {
+    <div class="snackbar">
+      <span class="snackbar__icon">✓</span>
+      <span class="snackbar__text">All information saved successfully!</span>
     </div>
   }
 </div>

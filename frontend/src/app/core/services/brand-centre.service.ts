@@ -137,7 +137,7 @@ export class BrandCentreService {
     this.updateState({ logos: current.logos.filter(l => l.id !== id) });
   }
 
-  updateFavicon(favicon: Favicon): void {
+  updateFavicon(favicon: Favicon | null): void {
     this.updateState({ favicon });
   }
 

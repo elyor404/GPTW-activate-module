@@ -47,6 +47,7 @@ export class BrandCentrePageComponent implements OnInit, OnDestroy {
   assetToDelete: string | null = null;
 
   showDeleteVoiceModal = false;
+  showSaveSnackbar = false;
 
   availableFonts = [
     'Roboto', 'Open Sans', 'Lato', 'Montserrat', 'Poppins',
@@ -188,6 +189,10 @@ export class BrandCentrePageComponent implements OnInit, OnDestroy {
       url: base64
     });
     input.value = '';
+  }
+
+  deleteFavicon(): void {
+    this.brandCentreService.updateFavicon(null);
   }
 
   onColourChange(index: number, event: Event): void {
@@ -430,5 +435,13 @@ export class BrandCentrePageComponent implements OnInit, OnDestroy {
       this.brandCentreService.deleteAsset(this.assetToDelete);
       this.assetToDelete = null;
     }
+  }
+
+  saveAllInfo(): void {
+    console.log('Brand Centre data saved:', this.brandCentre);
+    this.showSaveSnackbar = true;
+    setTimeout(() => {
+      this.showSaveSnackbar = false;
+    }, 1500);
   }
 }
