@@ -48,6 +48,7 @@ export class BrandCentrePageComponent implements OnInit, OnDestroy {
 
   showDeleteVoiceModal = false;
   showSaveSnackbar = false;
+  snackbarKey = 0;
 
   availableFonts = [
     'Roboto', 'Open Sans', 'Lato', 'Montserrat', 'Poppins',
@@ -439,9 +440,11 @@ export class BrandCentrePageComponent implements OnInit, OnDestroy {
 
   saveAllInfo(): void {
     console.log('Brand Centre data saved:', this.brandCentre);
+    this.snackbarKey++;
     this.showSaveSnackbar = true;
-    setTimeout(() => {
-      this.showSaveSnackbar = false;
-    }, 1500);
+  }
+
+  onSnackbarAnimationEnd(): void {
+    this.showSaveSnackbar = false;
   }
 }

@@ -343,7 +343,7 @@
 
   <!-- Save Snackbar -->
   @if (showSaveSnackbar) {
-    <div class="snackbar">
+    <div class="snackbar" (animationend)="onSnackbarAnimationEnd()">
       <span class="snackbar__icon">✓</span>
       <span class="snackbar__text">All information saved successfully!</span>
     </div>
