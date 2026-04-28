@@ -13,7 +13,7 @@
     <div class="kanban__column">
       <h2 class="kanban__title">Draft</h2>
       <div class="kanban__cards">
-        @for (post of draftPosts; track post.id) {
+        @for (post of draftPosts(); track post.id) {
           <div class="post-card">
             <div class="post-card__image-wrapper" [style.backgroundColor]="post.backgroundColor">
               <img [src]="post.image" [alt]="post.category" class="post-card__image" />
@@ -27,7 +27,7 @@
     <div class="kanban__column">
       <h2 class="kanban__title">Pending Approval</h2>
       <div class="kanban__cards">
-        @for (post of pendingPosts; track post.id) {
+        @for (post of pendingPosts(); track post.id) {
           <div class="post-card">
             <div class="post-card__image-wrapper" [style.backgroundColor]="post.backgroundColor">
               <img [src]="post.image" [alt]="post.category" class="post-card__image" />
@@ -41,7 +41,7 @@
     <div class="kanban__column">
       <h2 class="kanban__title">Approved</h2>
       <div class="kanban__cards">
-        @for (post of approvedPosts; track post.id) {
+        @for (post of approvedPosts(); track post.id) {
           <div class="post-card">
             <div class="post-card__image-wrapper" [style.backgroundColor]="post.backgroundColor">
               <img [src]="post.image" [alt]="post.category" class="post-card__image" />
@@ -55,7 +55,7 @@
     <div class="kanban__column">
       <h2 class="kanban__title">Published</h2>
       <div class="kanban__cards">
-        @for (post of publishedPosts; track post.id) {
+        @for (post of publishedPosts(); track post.id) {
           <div class="post-card">
             <div class="post-card__image-wrapper" [style.backgroundColor]="post.backgroundColor">
               <img [src]="post.image" [alt]="post.category" class="post-card__image" />
