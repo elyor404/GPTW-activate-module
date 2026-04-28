@@ -1,0 +1,24 @@
+<div class="activate-plus">
+  <h1 class="activate-plus__title">Activate+</h1>
+
+  <h2 class="activate-plus__section-title">Recommended posts:</h2>
+
+  @if (recommendations().length > 0) {
+    <div class="rec-grid">
+      @for (rec of recommendations(); track rec.id) {
+        <article class="rec-card">
+          <div class="rec-card__image-wrapper" [style.backgroundColor]="rec.backgroundColor">
+            <img [src]="rec.image" [alt]="rec.title" class="rec-card__image" />
+          </div>
+          <h3 class="rec-card__title">{{ rec.title }}</h3>
+          <p class="rec-card__meta">Created by Activate AI+</p>
+          <button type="button" class="btn" (click)="moveToDraft(rec)">MOVE TO DRAFT</button>
+        </article>
+      }
+    </div>
+  } @else {
+    <p class="activate-plus__empty">
+      No recommendations right now. New posts will appear here after the next survey refresh.
+    </p>
+  }
+</div>

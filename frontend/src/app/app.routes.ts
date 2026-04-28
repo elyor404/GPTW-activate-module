@@ -63,7 +63,7 @@ export const routes: Routes = [
             path: 'activate-plus',
             data: { title: 'Activate+' },
             loadComponent: () =>
-              import('./features/placeholder/placeholder-page.component').then((m) => m.PlaceholderPageComponent)
+              import('./features/activate/activate-plus/activate-plus-page.component').then((m) => m.ActivatePlusPageComponent)
           },
           {
             path: 'brand-centre',
