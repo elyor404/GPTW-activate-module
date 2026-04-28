@@ -3,8 +3,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface PostPreviewData {
   description: string;
-  postType: string;
-  size: string;
+  postType: string | null;
+  size: string | null;
   templateUrl: string | null;
   colour: string | null;
   badgeUrl: string | null;
@@ -14,8 +14,8 @@ export interface PostPreviewData {
 
 export interface PostFormState {
   postDescription: string;
-  selectedPostType: string;
-  selectedSize: string;
+  selectedPostType: string | null;
+  selectedSize: string | null;
   selectedTemplate: string | null;
   selectedColour: string | null;
   selectedBadge: string | null;
@@ -25,8 +25,8 @@ export interface PostFormState {
 
 const INITIAL_DATA: PostPreviewData = {
   description: '',
-  postType: 'text',
-  size: 'story',
+  postType: null,
+  size: null,
   templateUrl: null,
   colour: null,
   badgeUrl: null,
@@ -36,8 +36,8 @@ const INITIAL_DATA: PostPreviewData = {
 
 const INITIAL_FORM_STATE: PostFormState = {
   postDescription: '',
-  selectedPostType: 'text',
-  selectedSize: 'story',
+  selectedPostType: null,
+  selectedSize: null,
   selectedTemplate: null,
   selectedColour: null,
   selectedBadge: null,
@@ -75,6 +75,8 @@ export class PostPreviewService {
   hasFormState(): boolean {
     const state = this.formStateSubject.getValue();
     return state.postDescription !== '' || 
+           state.selectedPostType !== null ||
+           state.selectedSize !== null ||
            state.selectedTemplate !== null || 
            state.selectedColour !== null ||
            state.selectedBadge !== null ||

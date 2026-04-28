@@ -23,8 +23,8 @@ export class CreatePostPageComponent implements OnInit, OnDestroy {
 
   postDescription = '';
   
-  selectedPostType = 'text';
-  selectedSize = 'story';
+  selectedPostType: string | null = null;
+  selectedSize: string | null = null;
   selectedTemplate: string | null = null;
   selectedColour: string | null = null;
   selectedBadge: string | null = null;

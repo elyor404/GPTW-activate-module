@@ -54,16 +54,38 @@
     @if (previewData) {
       <div class="preview-content">
         <!-- Canvas Area -->
-        <div class="preview-canvas" [ngClass]="getPreviewSizeClass()" [style.transform]="'scale(' + zoomLevel / 100 + ')'">
+        <div class="preview-canvas" [ngClass]="getPreviewSizeClass()" [style.transform]="'scale(' + zoomLevel / 100 + ')'" [style.backgroundColor]="previewData.colour || '#f0f0f0'">
+          <!-- Background Template -->
           @if (previewData.templateUrl) {
-            <img [src]="previewData.templateUrl" alt="Template" class="preview-canvas__template" />
-          } @else if (previewData.uploadedFiles.length > 0) {
-            <img [src]="previewData.uploadedFiles[0].url" alt="Uploaded" class="preview-canvas__template" />
-          } @else {
-            <div class="preview-canvas__placeholder" [style.backgroundColor]="previewData.colour || '#f0f0f0'">
-              <span>Preview</span>
-            </div>
+            <img [src]="previewData.templateUrl" alt="Template" class="preview-canvas__background" />
           }
+
+          <!-- Post Content based on Type -->
+          <div class="preview-canvas__content">
+            @if (previewData.postType === 'text' && previewData.description) {
+              <div class="preview-canvas__text">
+                {{ previewData.description }}
+              </div>
+            } @else if (previewData.postType === 'video' && previewData.uploadedFiles.length > 0) {
+              <video [src]="previewData.uploadedFiles[0].url" class="preview-canvas__media" autoplay muted loop></video>
+            } @else if (previewData.postType === 'image' && previewData.uploadedFiles.length > 0) {
+              <img [src]="previewData.uploadedFiles[0].url" alt="Uploaded" class="preview-canvas__media" />
+            } @else if (!previewData.templateUrl && previewData.uploadedFiles.length === 0) {
+               <div class="preview-canvas__placeholder">
+                <span>Preview</span>
+              </div>
+            }
+          </div>
+
+          <!-- Overlays: Badge and Logo -->
+          <div class="preview-canvas__overlays">
+            @if (previewData.badgeUrl) {
+              <img [src]="previewData.badgeUrl" alt="Badge" class="preview-canvas__badge" />
+            }
+            @if (previewData.logoUrl) {
+              <img [src]="previewData.logoUrl" alt="Logo" class="preview-canvas__logo" />
+            }
+          </div>
         </div>
 
         <!-- Description Box -->
