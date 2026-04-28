@@ -172,23 +172,23 @@
     <div class="section">
       <h3 class="section__title">Select Logo:</h3>
       <div class="logo-grid">
-        <div
-          class="logo-card"
-          [class.logo-card--selected]="selectedLogo === 'vention'"
-          (click)="selectLogo('vention')"
-        >
-          <span class="logo-card__vention">vention</span>
-        </div>
-        <div
-          class="logo-card logo-card--badge"
-          [class.logo-card--selected]="selectedLogo === 'gptw'"
-          (click)="selectLogo('gptw')"
-        >
-          <div class="logo-card__gptw">
-            <span class="logo-card__gptw-text">Great<br>Place<br>To<br>Work.</span>
+        @for (logo of logos; track logo.id) {
+          <div
+            class="logo-card logo-card--image"
+            [class.logo-card--selected]="selectedLogo === logo.id"
+            (click)="selectLogo(logo.id)"
+          >
+            <img [src]="logo.url" [alt]="logo.name" class="logo-card__img" />
+            <button class="logo-card__remove" (click)="removeLogo(logo.id, $event)">×</button>
           </div>
-        </div>
+        }
         <label class="logo-card logo-card--add">
+          <input
+            type="file"
+            accept="image/*"
+            (change)="onLogoUpload($event)"
+            style="display: none;"
+          />
           <span class="logo-card__plus">+</span>
           <span class="logo-card__label">Add Logo</span>
         </label>

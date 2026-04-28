@@ -46,6 +46,6 @@ export class SocialPostsPageComponent {
   }
 
   createNewPost(): void {
-    this.router.navigate(['/activate/create-post']);
+    this.router.navigate(['/activate/social-posts/create-post']);
   }
 }

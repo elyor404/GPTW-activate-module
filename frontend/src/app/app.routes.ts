@@ -48,7 +48,7 @@ export const routes: Routes = [
               import('./features/activate/social-posts/social-posts-page.component').then((m) => m.SocialPostsPageComponent)
           },
           {
-            path: 'create-post',
+            path: 'social-posts/create-post',
             data: { title: 'Create Post' },
             loadComponent: () =>
               import('./features/activate/create-post/create-post-page/create-post-page').then((m) => m.CreatePostPageComponent)

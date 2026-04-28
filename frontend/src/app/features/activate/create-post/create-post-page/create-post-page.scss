@@ -82,12 +82,14 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.6rem 1.25rem;
+  padding: 0.75rem 1.5rem;
   background: #fff;
   border: 1px solid #E2E8F0;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
+  min-width: 110px;
+  justify-content: center;
 
   &:hover {
     border-color: #CBD5E0;
@@ -158,18 +160,18 @@
   }
 
   &--story {
-    width: 80px;
-    height: 140px;
+    width: 100px;
+    height: 130px;
   }
 
   &--landscape {
-    width: 140px;
-    height: 90px;
+    width: 130px;
+    height: 100px;
   }
 
   &--square {
-    width: 100px;
-    height: 100px;
+    width: 110px;
+    height: 110px;
   }
 
   &__icon {
@@ -197,24 +199,44 @@
 /* Template Grid */
 .template-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.6rem;
 }
 
 .template-card {
   aspect-ratio: 1;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid transparent;
-  transition: border-color 0.15s ease;
+  border: 3px solid transparent;
+  transition: all 0.15s ease;
+  position: relative;
 
   &:hover {
     border-color: #CBD5E0;
+    transform: scale(1.02);
   }
 
   &--selected {
     border-color: #5BA6A6;
+    box-shadow: 0 0 0 3px rgba(91, 166, 166, 0.3);
+
+    &::after {
+      content: '✓';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      background: #5BA6A6;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+    }
   }
 
   &__image {
@@ -238,13 +260,26 @@
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   min-height: 36px;
+  position: relative;
 
   &:hover {
     transform: scale(1.08);
   }
 
   &--selected {
-    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2D3748;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #5BA6A6;
+
+    &::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
   }
 }
 
@@ -260,15 +295,35 @@
   border-radius: 6px;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid transparent;
-  transition: border-color 0.15s ease;
+  border: 3px solid transparent;
+  transition: all 0.15s ease;
+  position: relative;
 
   &:hover {
     border-color: #CBD5E0;
+    transform: scale(1.02);
   }
 
   &--selected {
     border-color: #5BA6A6;
+    box-shadow: 0 0 0 3px rgba(91, 166, 166, 0.3);
+
+    &::after {
+      content: '✓';
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      background: #5BA6A6;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+    }
   }
 
   &__image {
@@ -283,6 +338,7 @@
   display: flex;
   gap: 0.6rem;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .logo-card {
@@ -297,6 +353,7 @@
   justify-content: center;
   cursor: pointer;
   transition: border-color 0.15s ease;
+  text-decoration: none;
 
   &:hover {
     border-color: #CBD5E0;
@@ -312,30 +369,56 @@
     color: #718096;
   }
 
-  &--badge {
-    padding: 0.5rem;
+  &--image {
+    padding: 0.25rem;
+    overflow: hidden;
+    position: relative;
   }
 
-  &__vention {
-    font-size: 1.1rem;
-    font-weight: 400;
-    color: #2D3748;
-    letter-spacing: 0.05em;
+  &--empty {
+    width: auto;
+    padding: 0 1rem;
+    cursor: default;
+    border: none;
+    background: transparent;
   }
 
-  &__gptw {
-    background: #E8472A;
-    padding: 0.4rem 0.5rem;
-    border-radius: 4px;
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 
-  &__gptw-text {
-    font-size: 0.45rem;
-    font-weight: 700;
+  &__remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    background: rgba(0, 0, 0, 0.5);
     color: #fff;
-    line-height: 1.1;
-    text-align: center;
-    display: block;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.7);
+    }
+  }
+
+  &--image:hover &__remove {
+    opacity: 1;
+  }
+
+  &__empty-text {
+    font-size: 0.75rem;
+    color: #A0AEC0;
   }
 
   &__plus {
