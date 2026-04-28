@@ -1,20 +1,24 @@
-import { Component, inject, signal, HostListener } from '@angular/core';
+import { Component, inject, signal, HostListener, ViewEncapsulation } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { LayoutUiService } from '../../../core/services/layout-ui.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { HeaderContextService } from '../../../core/services/header-context.service';
 import { LogoutModalComponent } from '../logout-modal/logout-modal.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, LogoutModalComponent],
+  imports: [RouterLink, LogoutModalComponent, CommonModule, NgTemplateOutlet],
   templateUrl: './app-header.component.html',
-  styleUrl: './app-header.component.scss'
+  styleUrl: './app-header.component.scss',
+  encapsulation: ViewEncapsulation.None
 })
 export class AppHeaderComponent {
   protected readonly layoutUi = inject(LayoutUiService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  protected readonly headerContext = inject(HeaderContextService);
 
   protected dropdownOpen = signal(false);
   protected showLogoutModal = signal(false);

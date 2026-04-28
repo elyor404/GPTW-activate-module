@@ -54,6 +54,12 @@ export const routes: Routes = [
               import('./features/activate/create-post/create-post-page/create-post-page').then((m) => m.CreatePostPageComponent)
           },
           {
+            path: 'social-posts/create-post/preview',
+            data: { title: 'Preview Post' },
+            loadComponent: () =>
+              import('./features/activate/create-post/preview-page/preview-page').then((m) => m.PreviewPageComponent)
+          },
+          {
             path: 'activate-plus',
             data: { title: 'Activate+' },
             loadComponent: () =>

@@ -1,0 +1,92 @@
+.preview-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #F5F5F5;
+}
+
+/* Main Preview Area */
+.preview-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow: auto;
+}
+
+.preview-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Canvas */
+.preview-canvas {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease;
+
+  &--story {
+    width: 300px;
+    height: 533px;
+  }
+
+  &--landscape {
+    width: 500px;
+    height: 281px;
+  }
+
+  &--square {
+    width: 400px;
+    height: 400px;
+  }
+
+  &__template {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #A0AEC0;
+  }
+}
+
+/* Description Box */
+.preview-description {
+  width: 100%;
+  max-width: 500px;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #4A5568;
+    line-height: 1.6;
+  }
+}
+
+/* Empty State */
+.preview-empty {
+  text-align: center;
+  padding: 2rem;
+
+  p {
+    font-size: 1rem;
+    color: #718096;
+    margin-bottom: 1.5rem;
+  }
+}

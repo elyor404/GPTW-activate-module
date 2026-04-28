@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { BrandCentreService, Logo } from '../../../../core/services/brand-centre.service';
+import { PostPreviewService } from '../../../../core/services/post-preview.service';
 
 interface Template {
   id: string;
@@ -44,16 +45,46 @@ export class CreatePostPageComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private brandCentreService: BrandCentreService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private postPreviewService: PostPreviewService
   ) {}
 
   ngOnInit(): void {
+    this.restoreFormState();
+    
     this.brandCentreService.getBrandCentre()
       .pipe(takeUntil(this.destroy$))
       .subscribe(brandCentre => {
         this.colours = brandCentre.colours;
         this.logos = brandCentre.logos;
       });
+  }
+
+  private restoreFormState(): void {
+    if (this.postPreviewService.hasFormState()) {
+      const state = this.postPreviewService.getFormState();
+      this.postDescription = state.postDescription;
+      this.selectedPostType = state.selectedPostType;
+      this.selectedSize = state.selectedSize;
+      this.selectedTemplate = state.selectedTemplate;
+      this.selectedColour = state.selectedColour;
+      this.selectedBadge = state.selectedBadge;
+      this.selectedLogo = state.selectedLogo;
+      this.uploadedFiles = [...state.uploadedFiles];
+    }
+  }
+
+  private saveFormState(): void {
+    this.postPreviewService.setFormState({
+      postDescription: this.postDescription,
+      selectedPostType: this.selectedPostType,
+      selectedSize: this.selectedSize,
+      selectedTemplate: this.selectedTemplate,
+      selectedColour: this.selectedColour,
+      selectedBadge: this.selectedBadge,
+      selectedLogo: this.selectedLogo,
+      uploadedFiles: [...this.uploadedFiles]
+    });
   }
 
   ngOnDestroy(): void {
@@ -156,10 +187,27 @@ export class CreatePostPageComponent implements OnInit, OnDestroy {
   }
 
   preview(): void {
-    console.log('Preview clicked');
+    this.saveFormState();
+    
+    const selectedTemplateObj = this.templates.find(t => t.id === this.selectedTemplate);
+    const selectedLogoObj = this.logos.find(l => l.id === this.selectedLogo);
+    
+    this.postPreviewService.setPreviewData({
+      description: this.postDescription,
+      postType: this.selectedPostType,
+      size: this.selectedSize,
+      templateUrl: selectedTemplateObj?.imageUrl || null,
+      colour: this.selectedColour,
+      badgeUrl: this.selectedBadge ? '/badges/gptw-certified-2025.png' : null,
+      logoUrl: selectedLogoObj?.url || null,
+      uploadedFiles: this.uploadedFiles
+    });
+    
+    this.router.navigate(['/activate/social-posts/create-post/preview']);
   }
 
   goBack(): void {
+    this.postPreviewService.clearData();
     this.router.navigate(['/activate/social-posts']);
   }
 }
