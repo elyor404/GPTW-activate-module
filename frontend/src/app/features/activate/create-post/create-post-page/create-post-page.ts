@@ -186,7 +186,13 @@ export class CreatePostPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  get isFormValid(): boolean {
+    return !!this.selectedPostType && !!this.selectedSize && !!this.selectedTemplate;
+  }
+
   preview(): void {
+    if (!this.isFormValid) return;
+
     this.saveFormState();
     
     const selectedTemplateObj = this.templates.find(t => t.id === this.selectedTemplate);

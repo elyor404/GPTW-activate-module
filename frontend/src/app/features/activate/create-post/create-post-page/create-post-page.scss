@@ -542,9 +542,15 @@
     color: #5A757C;
     border: 2px solid #5A757C;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: #F7FAFC;
     }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
   }
 
   &__sparkle {

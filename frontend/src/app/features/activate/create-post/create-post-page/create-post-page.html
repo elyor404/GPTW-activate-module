@@ -231,7 +231,12 @@
     <button class="action-btn action-btn--primary" (click)="createOrSchedule()">
       CREATE / SCHEDULE
     </button>
-    <button class="action-btn action-btn--secondary" (click)="preview()">
+    <button 
+      class="action-btn action-btn--secondary" 
+      (click)="preview()" 
+      [disabled]="!isFormValid"
+      [title]="!isFormValid ? 'Please select Type, Size, and Template first' : 'Preview your post'"
+    >
       PREVIEW
     </button>
   </div>
