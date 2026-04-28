@@ -1,47 +1,96 @@
-<!-- Header Templates for HeaderContextService -->
 <ng-template #headerLeft>
   <button class="back-btn" (click)="goBack()">BACK</button>
-  <span class="project-name">{{ projectName }}</span>
+  <img src="/logo.png" alt="Logo" class="header-logo" />
 </ng-template>
 
 <ng-template #headerCenter>
-  <div class="toolbar">
-    <button class="tool-btn" title="Select">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
-      </svg>
-    </button>
-    <button class="tool-btn" title="Move">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>
-      </svg>
-    </button>
-    <button class="tool-btn" title="Text">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M5 4v3h5.5v12h3V7H19V4H5z"/>
-      </svg>
-    </button>
-    <button class="tool-btn" title="Image">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-      </svg>
-    </button>
-    <button class="tool-btn" title="Shape">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/>
-      </svg>
-    </button>
-    <button class="tool-btn" title="AI">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/>
-      </svg>
-    </button>
+  <div class="toolbar-container">
+    <div class="toolbar">
+      <button
+        class="tool-btn"
+        [class.tool-btn--active]="activeTool === 'select'"
+        (click)="setTool('select')"
+        title="Select"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+        </svg>
+      </button>
+      <button
+        class="tool-btn"
+        [class.tool-btn--active]="activeTool === 'move'"
+        (click)="setTool('move')"
+        title="Move & Resize"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>
+        </svg>
+      </button>
+      <button
+        class="tool-btn"
+        [class.tool-btn--active]="activeTool === 'text'"
+        (click)="setTool('text')"
+        title="Text"
+      >
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M5 4v3h5.5v12h3V7H19V4H5z"/>
+        </svg>
+      </button>
+      <button
+        class="tool-btn"
+        [class.tool-btn--active]="activeTool === 'image'"
+        (click)="setTool('image')"
+        title="Image"
+      >
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+        </svg>
+      </button>
+      <button
+        class="tool-btn"
+        [class.tool-btn--active]="activeTool === 'shape'"
+        (click)="setTool('shape')"
+        title="Shape"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+        </svg>
+      </button>
+      <button
+        class="tool-btn"
+        [class.tool-btn--active]="activeTool === 'ai'"
+        (click)="setTool('ai')"
+        title="AI"
+      >
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Contextual Toolbar for Text -->
+    @if (getSelectedElement()?.type === 'text') {
+      <div class="context-toolbar">
+        <div class="color-picker-mini">
+          @for (color of availableColors; track color) {
+            <button 
+              class="color-dot" 
+              [style.backgroundColor]="color" 
+              [class.color-dot--active]="getSelectedElement()?.color === color"
+              (click)="updateTextColor(color)"
+            ></button>
+          }
+        </div>
+      </div>
+    }
   </div>
 </ng-template>
 
 <ng-template #headerRight>
   <div class="zoom-control">
-    <span>Zoom</span>
+    <button class="zoom-btn" (click)="zoomOut()">-</button>
+    <span class="zoom-text">{{ zoomLevel }}%</span>
+    <button class="zoom-btn" (click)="zoomIn()">+</button>
   </div>
   <button class="action-btn action-btn--outline" (click)="saveDraft()">SAVE DRAFT</button>
   <button class="action-btn action-btn--outline" (click)="approve()">APPROVE</button>
@@ -50,11 +99,16 @@
 
 <div class="preview-page">
   <!-- Main Preview Area -->
-  <main class="preview-main">
+  <main class="preview-main" (click)="deselectAll()">
     @if (previewData) {
       <div class="preview-content">
         <!-- Canvas Area -->
-        <div class="preview-canvas" [ngClass]="getPreviewSizeClass()" [style.transform]="'scale(' + zoomLevel / 100 + ')'" [style.backgroundColor]="previewData.colour || '#f0f0f0'">
+        <div
+          class="preview-canvas"
+          [ngClass]="getPreviewSizeClass()"
+          [style.transform]="'scale(' + zoomLevel / 100 + ')'"
+          [style.backgroundColor]="previewData.colour || '#f0f0f0'"
+        >
           <!-- Background Template -->
           @if (previewData.templateUrl) {
             <img [src]="previewData.templateUrl" alt="Template" class="preview-canvas__background" />
@@ -62,11 +116,7 @@
 
           <!-- Post Content based on Type -->
           <div class="preview-canvas__content">
-            @if (previewData.postType === 'text' && previewData.description) {
-              <div class="preview-canvas__text">
-                {{ previewData.description }}
-              </div>
-            } @else if (previewData.postType === 'video' && previewData.uploadedFiles.length > 0) {
+            @if (previewData.postType === 'video' && previewData.uploadedFiles.length > 0) {
               <video [src]="previewData.uploadedFiles[0].url" class="preview-canvas__media" autoplay muted loop></video>
             } @else if (previewData.postType === 'image' && previewData.uploadedFiles.length > 0) {
               <img [src]="previewData.uploadedFiles[0].url" alt="Uploaded" class="preview-canvas__media" />
@@ -77,21 +127,55 @@
             }
           </div>
 
-          <!-- Overlays: Badge and Logo -->
-          <div class="preview-canvas__overlays">
-            @if (previewData.badgeUrl) {
-              <img [src]="previewData.badgeUrl" alt="Badge" class="preview-canvas__badge" />
-            }
-            @if (previewData.logoUrl) {
-              <img [src]="previewData.logoUrl" alt="Logo" class="preview-canvas__logo" />
-            }
-          </div>
+          <!-- Dynamic Elements -->
+          @for (element of canvasElements; track element.id) {
+            <div
+              class="canvas-element"
+              [class.canvas-element--selected]="selectedElementId === element.id"
+              [class.canvas-element--move]="activeTool === 'move'"
+              [style.left.px]="element.x"
+              [style.top.px]="element.y"
+              [style.width.px]="element.width"
+              [style.height.px]="element.height"
+              (mousedown)="selectElement(element.id, $event)"
+            >
+              @if (element.type === 'text') {
+                <div
+                  class="canvas-element__text"
+                  [style.color]="element.color"
+                  [style.fontSize.px]="element.fontSize"
+                  contenteditable="true"
+                  (blur)="element.content = $any($event.target).innerText"
+                >
+                  {{ element.content }}
+                </div>
+              } @else if (element.type === 'image') {
+                <img [src]="element.url" class="canvas-element__image" draggable="false" />
+              } @else if (element.type === 'shape') {
+                <div
+                  class="canvas-element__shape"
+                  [class.canvas-element__shape--circle]="element.shapeType === 'circle'"
+                  [style.backgroundColor]="element.color"
+                ></div>
+              }
+
+              <!-- Editor Handles -->
+              @if (selectedElementId === element.id) {
+                <div class="element-controls">
+                  <button class="element-delete" (click)="deleteSelected(); $event.stopPropagation()" title="Delete">×</button>
+                  <div class="element-resize" (mousedown)="startResizing(element.id, $event)"></div>
+                </div>
+              }
+            </div>
+          }
         </div>
 
         <!-- Description Box -->
-        <div class="preview-description">
-          <p>{{ previewData.description || 'No description provided.' }}</p>
-        </div>
+        @if (previewData.description) {
+          <div class="preview-description">
+            <p>{{ previewData.description }}</p>
+          </div>
+        }
       </div>
     } @else {
       <div class="preview-empty">
