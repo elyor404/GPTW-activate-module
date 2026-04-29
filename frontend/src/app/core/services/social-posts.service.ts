@@ -1,16 +1,27 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { PostFormState } from './post-preview.service';
 
-export type SocialPostStatus = 'draft' | 'pending' | 'approved' | 'published';
+export type PostStatus = 'draft' | 'pending' | 'approved' | 'published';
+export type PostType = 'text' | 'image' | 'video';
+export type PostSize = 'square' | 'story' | 'landscape';
 
-export interface SocialPost {
+export interface UploadedFile {
+  id: string;
+  url: string;
+  type: 'image' | 'video';
+}
+
+export interface Post {
   id: number;
-  image: string;
-  category: string;
-  status: SocialPostStatus;
-  backgroundColor?: string;
-  aspectRatio?: string;
-  formState?: PostFormState;
+  status: PostStatus;
+  previewImage: string;
+  description: string;
+  postType: PostType | null;
+  size: PostSize | null;
+  templateId: string | null;
+  colour: string | null;
+  badgeId: string | null;
+  logoId: string | null;
+  uploadedFiles: UploadedFile[];
 }
 
 export interface RecommendedPost {
@@ -22,15 +33,57 @@ export interface RecommendedPost {
   aspectRatio?: string;
 }
 
+interface SeedSpec {
+  status: PostStatus;
+  previewImage: string;
+  description: string;
+  size: PostSize;
+  colour: string;
+  templateId: string;
+}
+
+const SEED_SPECS: SeedSpec[] = [
+  // Draft (5)
+  { status: 'draft', previewImage: '/posts/post1.svg', description: 'Excited to be recognized as a Best Workplace 2026!', size: 'square', colour: '#E8472A', templateId: '1' },
+  { status: 'draft', previewImage: '/posts/Facebook post - 1.svg', description: 'Top 5% Trust Index globally — thank you to our team.', size: 'square', colour: '#1A3C4D', templateId: '2' },
+  { status: 'draft', previewImage: '/posts/Instagram story - 1.svg', description: 'Celebrating our certified culture.', size: 'story', colour: '#1E2A35', templateId: '3' },
+  { status: 'draft', previewImage: '/posts/Facebook post - 2.svg', description: 'Our people make us a Best Workplace.', size: 'square', colour: '#0F3D45', templateId: '1' },
+
+  // Pending Approval (5)
+  { status: 'pending', previewImage: '/posts/Facebook post - 2.svg', description: 'Best for Women 2026 — celebrating our team.', size: 'square', colour: '#E8472A', templateId: '3' },
+  { status: 'pending', previewImage: '/posts/1.svg', description: 'Why our employees love coming to work.', size: 'landscape', colour: '#0F3D45', templateId: '2' },
+
+  // Approved (5)
+  { status: 'approved', previewImage: '/posts/Instagram story - 1.svg', description: 'Best Workplace Asia 2026 — thank you!', size: 'story', colour: '#1A3C4D', templateId: '3' },
+  { status: 'approved', previewImage: '/posts/Facebook post - 1.svg', description: '98% of our employees are proud to work here.', size: 'square', colour: '#E8472A', templateId: '4' },
+  { status: 'approved', previewImage: '/posts/Facebook post - 2.svg', description: 'Best for Diversity 2026.', size: 'square', colour: '#0F3D45', templateId: '3' },
+
+  // Published (5)
+  { status: 'published', previewImage: '/posts/Instagram story - 2.svg', description: 'Best Workplace 2026 — share the news!', size: 'story', colour: '#1E2A35', templateId: '1' },
+  { status: 'published', previewImage: '/posts/Facebook post - 2.svg', description: 'Thank you to every teammate who made this possible.', size: 'square', colour: '#0F3D45', templateId: '1' }
+];
+
+function buildSeedPost(spec: SeedSpec, id: number): Post {
+  return {
+    id,
+    status: spec.status,
+    previewImage: spec.previewImage,
+    description: spec.description,
+    postType: 'image',
+    size: spec.size,
+    templateId: spec.templateId,
+    colour: spec.colour,
+    badgeId: '1',
+    logoId: null,
+    uploadedFiles: []
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class SocialPostsService {
-  private readonly _posts = signal<SocialPost[]>([
-    this.buildSeedPost({ id: 1, image: '/posts/post1.svg', category: 'Best Workplace', status: 'draft', backgroundColor: '#E8472A', aspectRatio: '1 / 1', size: 'square', templateId: '1' }),
-    this.buildSeedPost({ id: 2, image: '/posts/Facebook post - 1.svg', category: 'Best for Women', status: 'draft', backgroundColor: '#1A3C4D', aspectRatio: '4 / 5', size: 'square', templateId: '2' }),
-    this.buildSeedPost({ id: 3, image: '/posts/Facebook post - 2.svg', category: 'Best for Women', status: 'pending', backgroundColor: '#E8472A', aspectRatio: '4 / 5', size: 'square', templateId: '3' }),
-    this.buildSeedPost({ id: 4, image: '/posts/Instagram story - 1.svg', category: 'Best Workplace', status: 'approved', backgroundColor: '#1A3C4D', aspectRatio: '1 / 1', size: 'square', templateId: '4' }),
-    this.buildSeedPost({ id: 5, image: '/posts/Instagram story - 2.svg', category: 'Best for Women', status: 'published', backgroundColor: '#1E2A35', aspectRatio: '9 / 16', size: 'story', templateId: '1' })
-  ]);
+  private readonly _posts = signal<Post[]>(
+    SEED_SPECS.map((spec, idx) => buildSeedPost(spec, idx + 1))
+  );
 
   private readonly _recommendations = signal<RecommendedPost[]>([
     {
@@ -67,46 +120,14 @@ export class SocialPostsService {
   readonly approvedPosts = computed(() => this._posts().filter((p) => p.status === 'approved'));
   readonly publishedPosts = computed(() => this._posts().filter((p) => p.status === 'published'));
 
-  updatePostStatus(id: number, status: SocialPostStatus): void {
+  updatePostStatus(id: number, status: PostStatus): void {
     this._posts.update((posts) =>
       posts.map((p) => (p.id === id ? { ...p, status } : p))
     );
   }
 
-  getPostById(id: number): SocialPost | undefined {
+  getPostById(id: number): Post | undefined {
     return this._posts().find((p) => p.id === id);
-  }
-
-  private buildSeedPost(opts: {
-    id: number;
-    image: string;
-    category: string;
-    status: SocialPostStatus;
-    backgroundColor: string;
-    aspectRatio: string;
-    size: 'square' | 'story' | 'landscape';
-    templateId: string;
-  }): SocialPost {
-    const description = `We are excited to share that we are recognized as ${opts.category}.`;
-    const formState: PostFormState = {
-      postDescription: description,
-      selectedPostType: 'image',
-      selectedSize: opts.size,
-      selectedTemplate: opts.templateId,
-      selectedColour: opts.backgroundColor,
-      selectedBadge: '1',
-      selectedLogo: null,
-      uploadedFiles: []
-    };
-    return {
-      id: opts.id,
-      image: opts.image,
-      category: opts.category,
-      status: opts.status,
-      backgroundColor: opts.backgroundColor,
-      aspectRatio: opts.aspectRatio,
-      formState
-    };
   }
 
   moveRecommendationToDraft(recommendationId: number): void {
@@ -114,13 +135,18 @@ export class SocialPostsService {
     if (!rec) return;
 
     const nextId = Math.max(0, ...this._posts().map((p) => p.id)) + 1;
-    const draft: SocialPost = {
+    const draft: Post = {
       id: nextId,
-      image: rec.image,
-      category: rec.category,
       status: 'draft',
-      backgroundColor: rec.backgroundColor,
-      aspectRatio: rec.aspectRatio
+      previewImage: rec.image,
+      description: rec.title,
+      postType: 'image',
+      size: 'landscape',
+      templateId: '1',
+      colour: rec.backgroundColor,
+      badgeId: '1',
+      logoId: null,
+      uploadedFiles: []
     };
 
     this._posts.update((posts) => [draft, ...posts]);
