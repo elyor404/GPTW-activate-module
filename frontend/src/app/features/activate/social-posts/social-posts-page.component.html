@@ -15,11 +15,11 @@
       <div class="kanban__cards">
         @for (post of draftPosts(); track post.id) {
           <div class="post-card" [class.post-card--menu-open]="openMenuId() === post.id">
-            <div class="post-card__image-wrapper" [style.backgroundColor]="post.backgroundColor">
-              <img [src]="post.image" [alt]="post.category" class="post-card__image" />
+            <div class="post-card__image-wrapper" [style.backgroundColor]="post.colour">
+              <img [src]="post.previewImage" [alt]="post.description" class="post-card__image" />
             </div>
             <div class="post-card__footer">
-              <span class="post-card__category">{{ post.category }}</span>
+              <span class="post-card__description">{{ post.description }}</span>
               <button
                 class="post-card__menu-trigger"
                 type="button"
@@ -48,11 +48,11 @@
       <div class="kanban__cards">
         @for (post of pendingPosts(); track post.id) {
           <div class="post-card" [class.post-card--menu-open]="openMenuId() === post.id">
-            <div class="post-card__image-wrapper" [style.backgroundColor]="post.backgroundColor">
-              <img [src]="post.image" [alt]="post.category" class="post-card__image" />
+            <div class="post-card__image-wrapper" [style.backgroundColor]="post.colour">
+              <img [src]="post.previewImage" [alt]="post.description" class="post-card__image" />
             </div>
             <div class="post-card__footer">
-              <span class="post-card__category">{{ post.category }}</span>
+              <span class="post-card__description">{{ post.description }}</span>
               <button
                 class="post-card__menu-trigger"
                 type="button"
@@ -82,11 +82,11 @@
       <div class="kanban__cards">
         @for (post of approvedPosts(); track post.id) {
           <div class="post-card" [class.post-card--menu-open]="openMenuId() === post.id">
-            <div class="post-card__image-wrapper" [style.backgroundColor]="post.backgroundColor">
-              <img [src]="post.image" [alt]="post.category" class="post-card__image" />
+            <div class="post-card__image-wrapper" [style.backgroundColor]="post.colour">
+              <img [src]="post.previewImage" [alt]="post.description" class="post-card__image" />
             </div>
             <div class="post-card__footer">
-              <span class="post-card__category">{{ post.category }}</span>
+              <span class="post-card__description">{{ post.description }}</span>
               <button
                 class="post-card__menu-trigger"
                 type="button"
@@ -118,11 +118,11 @@
       <div class="kanban__cards">
         @for (post of publishedPosts(); track post.id) {
           <div class="post-card">
-            <div class="post-card__image-wrapper" [style.backgroundColor]="post.backgroundColor">
-              <img [src]="post.image" [alt]="post.category" class="post-card__image" />
+            <div class="post-card__image-wrapper" [style.backgroundColor]="post.colour">
+              <img [src]="post.previewImage" [alt]="post.description" class="post-card__image" />
             </div>
             <div class="post-card__footer">
-              <span class="post-card__category">{{ post.category }}</span>
+              <span class="post-card__description">{{ post.description }}</span>
               <button class="post-card__preview-btn" type="button" (click)="preview(post)">Preview</button>
             </div>
           </div>
@@ -144,8 +144,8 @@
           <line x1="18" y1="6" x2="6" y2="18"/>
         </svg>
       </button>
-      <div class="preview-lightbox__frame" (click)="$event.stopPropagation()" [style.backgroundColor]="p.backgroundColor">
-        <img [src]="p.image" [alt]="p.category" class="preview-lightbox__image" />
+      <div class="preview-lightbox__frame" (click)="$event.stopPropagation()" [style.backgroundColor]="p.colour">
+        <img [src]="p.previewImage" [alt]="p.description" class="preview-lightbox__image" />
       </div>
     </div>
   }

@@ -1,7 +1,7 @@
 import { Component, HostListener, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { SocialPost, SocialPostsService } from '../../../core/services/social-posts.service';
+import { Post, SocialPostsService } from '../../../core/services/social-posts.service';
 import { PostPreviewService } from '../../../core/services/post-preview.service';
 
 @Component({
@@ -22,7 +22,7 @@ export class SocialPostsPageComponent {
   readonly publishedPosts = this.socialPosts.publishedPosts;
 
   readonly openMenuId = signal<number | null>(null);
-  readonly previewPost = signal<SocialPost | null>(null);
+  readonly previewPost = signal<Post | null>(null);
 
   createNewPost(): void {
     this.postPreviewService.clearData();
@@ -44,21 +44,28 @@ export class SocialPostsPageComponent {
     this.previewPost.set(null);
   }
 
-  edit(post: SocialPost): void {
+  edit(post: Post): void {
     this.openMenuId.set(null);
     this.postPreviewService.clearData();
-    if (post.formState) {
-      this.postPreviewService.setFormState(post.formState);
-    }
+    this.postPreviewService.setFormState({
+      postDescription: post.description,
+      selectedPostType: post.postType,
+      selectedSize: post.size,
+      selectedTemplate: post.templateId,
+      selectedColour: post.colour,
+      selectedBadge: post.badgeId,
+      selectedLogo: post.logoId,
+      uploadedFiles: post.uploadedFiles
+    });
     this.router.navigate(['/activate/social-posts/create-post']);
   }
 
-  approve(post: SocialPost): void {
+  approve(post: Post): void {
     this.openMenuId.set(null);
     this.socialPosts.updatePostStatus(post.id, 'approved');
   }
 
-  preview(post: SocialPost): void {
+  preview(post: Post): void {
     this.openMenuId.set(null);
     this.previewPost.set(post);
   }
@@ -67,23 +74,23 @@ export class SocialPostsPageComponent {
     this.previewPost.set(null);
   }
 
-  download(post: SocialPost): void {
+  download(post: Post): void {
     this.openMenuId.set(null);
     const link = document.createElement('a');
-    link.href = post.image;
-    const filename = post.image.split('/').pop() ?? `post-${post.id}.svg`;
+    link.href = post.previewImage;
+    const filename = post.previewImage.split('/').pop() ?? `post-${post.id}.svg`;
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   }
 
-  postToLinkedIn(post: SocialPost): void {
+  postToLinkedIn(post: Post): void {
     this.openMenuId.set(null);
     console.log('Post to LinkedIn (placeholder):', post);
   }
 
-  publish(post: SocialPost): void {
+  publish(post: Post): void {
     this.openMenuId.set(null);
     this.socialPosts.updatePostStatus(post.id, 'published');
   }
