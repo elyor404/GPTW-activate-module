@@ -1,0 +1,78 @@
+<div class="lp" [class.lp--collapsed]="collapsed()">
+  <button class="lp__head" type="button" (click)="toggleCollapsed()">
+    <span class="lp__title">Layers</span>
+    <span class="lp__count">{{ layers().length }}</span>
+    <svg class="lp__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  </button>
+
+  @if (!collapsed()) {
+    <ul class="lp__list">
+      @if (layers().length === 0) {
+        <li class="lp__empty">No layers yet. Add text, images or shapes.</li>
+      }
+      @for (layer of layers(); track layer.id) {
+        <li
+          class="lp__item"
+          [class.lp__item--active]="store.selectedIds().includes(layer.id)"
+          [draggable]="true"
+          (dragstart)="onDragStart(layer, $event)"
+          (dragover)="onDragOver($event)"
+          (drop)="onDrop(layer, $event)"
+          (click)="selectLayer(layer, $event)"
+        >
+          <span class="lp__icon">{{ iconFor(layer) }}</span>
+
+          @if (editingNameId() === layer.id) {
+            <input
+              class="lp__name-input"
+              [value]="layer.name"
+              (keydown.enter)="saveName(layer, $any($event.target).value)"
+              (blur)="saveName(layer, $any($event.target).value)"
+              autofocus
+              (click)="$event.stopPropagation()"
+            />
+          } @else {
+            <span class="lp__name" (dblclick)="startEditingName(layer, $event)">{{ layer.name }}</span>
+          }
+
+          <button
+            type="button"
+            class="lp__act"
+            [class.is-off]="!layer.visible"
+            (click)="toggleVisibility(layer, $event)"
+            [title]="layer.visible ? 'Hide' : 'Show'"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              @if (layer.visible) {
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+                <circle cx="12" cy="12" r="3" />
+              } @else {
+                <path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a18.94 18.94 0 014.34-5.5m4.4-2.5A10 10 0 0112 5c7 0 11 7 11 7a18.6 18.6 0 01-3.16 4.4M1 1l22 22M9.9 4.24A9.12 9.12 0 0112 4" />
+              }
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            class="lp__act"
+            [class.is-on]="layer.locked"
+            (click)="toggleLock(layer, $event)"
+            [title]="layer.locked ? 'Unlock' : 'Lock'"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              @if (layer.locked) {
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0110 0v4"/>
+              } @else {
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 019.9-1"/>
+              }
+            </svg>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</div>

@@ -1,0 +1,246 @@
+<aside class="pp">
+  @let sel = selected();
+
+  @if (multiSelect()) {
+    <div class="pp__head">
+      <h3 class="pp__title">Multi-select</h3>
+      <p class="pp__hint">{{ store.selectedElements().length }} elements selected</p>
+    </div>
+    <div class="pp__group">
+      <label class="pp__label">Opacity</label>
+      <div class="pp__slider-row">
+        <input
+          type="range"
+          min="0"
+          max="100"
+          [value]="toPercent(sel?.opacity ?? 1)"
+          (input)="onOpacityChange($any($event.target).value)"
+          (change)="store.commitChange()"
+        />
+        <span class="pp__num">{{ toPercent(sel?.opacity ?? 1) }}%</span>
+      </div>
+    </div>
+  } @else if (asText(sel); as t) {
+    <div class="pp__head">
+      <h3 class="pp__title">Text</h3>
+      <p class="pp__hint">{{ t.name }}</p>
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Font</label>
+      <select class="pp__select" [ngModel]="t.fontFamily" (ngModelChange)="updateSelected({ fontFamily: $event })">
+        @for (f of fontFamilies; track f) { <option [value]="f">{{ f }}</option> }
+      </select>
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Size</label>
+      <div class="pp__stepper">
+        <button type="button" (click)="stepFontSize(t.fontSize, -2)">−</button>
+        <input
+          type="number"
+          min="8"
+          max="400"
+          [ngModel]="t.fontSize"
+          (ngModelChange)="updateSelected({ fontSize: +$event || 12 })"
+        />
+        <button type="button" (click)="stepFontSize(t.fontSize, 2)">+</button>
+      </div>
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Style</label>
+      <div class="pp__btn-row">
+        <button type="button" class="pp__toggle" [class.is-active]="t.fontWeight === 700" (click)="toggleBold()" title="Bold"><strong>B</strong></button>
+        <button type="button" class="pp__toggle" [class.is-active]="t.italic" (click)="toggleItalic()" title="Italic"><em>I</em></button>
+        <button type="button" class="pp__toggle" [class.is-active]="t.underline" (click)="toggleUnderline()" title="Underline"><span style="text-decoration:underline">U</span></button>
+      </div>
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Alignment</label>
+      <div class="pp__btn-row">
+        @for (a of aligns; track a) {
+          <button
+            type="button"
+            class="pp__toggle"
+            [class.is-active]="t.textAlign === a"
+            (click)="setAlign(a)"
+            [title]="a"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              @switch (a) {
+                @case ('left') { <path d="M4 6h16M4 12h10M4 18h16"/> }
+                @case ('center') { <path d="M4 6h16M7 12h10M4 18h16"/> }
+                @case ('right') { <path d="M4 6h16M10 12h10M4 18h16"/> }
+                @case ('justify') { <path d="M4 6h16M4 12h16M4 18h16"/> }
+              }
+            </svg>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Color</label>
+      <div class="pp__color-row">
+        <input type="color" [ngModel]="t.color" (ngModelChange)="updateSelected({ color: $event })" />
+        <input type="text" class="pp__input" [ngModel]="t.color" (ngModelChange)="updateSelected({ color: $event })" />
+      </div>
+      <div class="pp__swatches">
+        @for (c of palette; track c) {
+          <button type="button" class="pp__swatch" [class.is-active]="t.color === c" [style.background]="c" (click)="updateSelected({ color: c })"></button>
+        }
+      </div>
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Line height <span class="pp__num">{{ t.lineHeight | number:'1.1-2' }}</span></label>
+      <input type="range" min="0.8" max="3" step="0.1" [ngModel]="t.lineHeight" (ngModelChange)="updateSelected({ lineHeight: +$event }, false)" (change)="store.commitChange()" />
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Letter spacing <span class="pp__num">{{ t.letterSpacing }}px</span></label>
+      <input type="range" min="-5" max="20" step="0.5" [ngModel]="t.letterSpacing" (ngModelChange)="updateSelected({ letterSpacing: +$event }, false)" (change)="store.commitChange()" />
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Opacity <span class="pp__num">{{ toPercent(t.opacity) }}%</span></label>
+      <input type="range" min="0" max="100" [value]="toPercent(t.opacity)" (input)="onOpacityChange($any($event.target).value)" (change)="store.commitChange()" />
+    </div>
+  } @else if (asImage(sel); as img) {
+    <div class="pp__head">
+      <h3 class="pp__title">Image</h3>
+      <p class="pp__hint">{{ img.name }}</p>
+    </div>
+
+    <div class="pp__group">
+      <button type="button" class="pp__btn pp__btn--full" (click)="onReplaceImageClick()">Replace image</button>
+      <input #replaceInput type="file" accept="image/*" style="display:none" (change)="onReplaceImage($event)" />
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Filters</label>
+      <div class="pp__filter-grid">
+        @for (f of filters; track f.id) {
+          <button type="button" class="pp__filter" [class.is-active]="img.filter === f.id" (click)="applyFilter(f.id)">
+            <span class="pp__filter-thumb" [style.background-image]="'url(' + img.url + ')'" [style.filter]="f.css"></span>
+            <span class="pp__filter-label">{{ f.label }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Border radius <span class="pp__num">{{ img.borderRadius }}px</span></label>
+      <input type="range" min="0" max="200" [ngModel]="img.borderRadius" (ngModelChange)="updateSelected({ borderRadius: +$event }, false)" (change)="store.commitChange()" />
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label pp__label--row">
+        <span>Drop shadow</span>
+        <input type="checkbox" [ngModel]="img.shadow" (ngModelChange)="updateSelected({ shadow: $event })" />
+      </label>
+      @if (img.shadow) {
+        <div class="pp__sub">
+          <label class="pp__label">Blur <span class="pp__num">{{ img.shadowBlur }}px</span></label>
+          <input type="range" min="0" max="80" [ngModel]="img.shadowBlur" (ngModelChange)="updateSelected({ shadowBlur: +$event }, false)" (change)="store.commitChange()" />
+          <label class="pp__label">Offset X <span class="pp__num">{{ img.shadowOffsetX }}px</span></label>
+          <input type="range" min="-40" max="40" [ngModel]="img.shadowOffsetX" (ngModelChange)="updateSelected({ shadowOffsetX: +$event }, false)" (change)="store.commitChange()" />
+          <label class="pp__label">Offset Y <span class="pp__num">{{ img.shadowOffsetY }}px</span></label>
+          <input type="range" min="-40" max="40" [ngModel]="img.shadowOffsetY" (ngModelChange)="updateSelected({ shadowOffsetY: +$event }, false)" (change)="store.commitChange()" />
+        </div>
+      }
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Opacity <span class="pp__num">{{ toPercent(img.opacity) }}%</span></label>
+      <input type="range" min="0" max="100" [value]="toPercent(img.opacity)" (input)="onOpacityChange($any($event.target).value)" (change)="store.commitChange()" />
+    </div>
+  } @else if (asShape(sel); as sh) {
+    <div class="pp__head">
+      <h3 class="pp__title">Shape</h3>
+      <p class="pp__hint">{{ sh.shape }}</p>
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Fill</label>
+      <div class="pp__color-row">
+        <input type="color" [ngModel]="sh.fill" (ngModelChange)="updateSelected({ fill: $event })" />
+        <input type="text" class="pp__input" [ngModel]="sh.fill" (ngModelChange)="updateSelected({ fill: $event })" />
+      </div>
+      <div class="pp__swatches">
+        @for (c of palette; track c) {
+          <button type="button" class="pp__swatch" [class.is-active]="sh.fill === c" [style.background]="c" (click)="updateSelected({ fill: c })"></button>
+        }
+      </div>
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Border</label>
+      <div class="pp__color-row">
+        <input type="color" [ngModel]="sh.stroke" (ngModelChange)="updateSelected({ stroke: $event })" />
+        <input type="number" class="pp__input pp__input--sm" min="0" max="40" [ngModel]="sh.strokeWidth" (ngModelChange)="updateSelected({ strokeWidth: +$event || 0 })" />
+        <span class="pp__num">px</span>
+      </div>
+    </div>
+
+    @if (sh.shape === 'rectangle') {
+      <div class="pp__group">
+        <label class="pp__label">Border radius <span class="pp__num">{{ sh.borderRadius }}px</span></label>
+        <input type="range" min="0" max="100" [ngModel]="sh.borderRadius" (ngModelChange)="updateSelected({ borderRadius: +$event }, false)" (change)="store.commitChange()" />
+      </div>
+    }
+
+    <div class="pp__group">
+      <label class="pp__label">Opacity <span class="pp__num">{{ toPercent(sh.opacity) }}%</span></label>
+      <input type="range" min="0" max="100" [value]="toPercent(sh.opacity)" (input)="onOpacityChange($any($event.target).value)" (change)="store.commitChange()" />
+    </div>
+  } @else {
+    <div class="pp__head">
+      <h3 class="pp__title">Canvas</h3>
+      <p class="pp__hint">Nothing selected</p>
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Background color</label>
+      <div class="pp__color-row">
+        <input type="color" [ngModel]="store.state().background" (ngModelChange)="store.setBackground($event)" />
+        <input type="text" class="pp__input" [ngModel]="store.state().background" (ngModelChange)="store.setBackground($event)" />
+      </div>
+      <div class="pp__swatches">
+        @for (c of palette; track c) {
+          <button type="button" class="pp__swatch" [class.is-active]="store.state().background === c" [style.background]="c" (click)="store.setBackground(c)"></button>
+        }
+      </div>
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label">Canvas size</label>
+      <div class="pp__presets">
+        @for (p of presets; track p.id) {
+          <button
+            type="button"
+            class="pp__preset"
+            [class.is-active]="store.state().canvasSize.width === p.width && store.state().canvasSize.height === p.height"
+            (click)="applyPreset(p.id)"
+          >
+            <span class="pp__preset-label">{{ p.label }}</span>
+            <span class="pp__preset-dim">{{ p.width }} × {{ p.height }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="pp__group">
+      <label class="pp__label pp__label--row">
+        <span>Show grid</span>
+        <input type="checkbox" [ngModel]="store.state().showGrid" (ngModelChange)="store.setShowGrid($event)" />
+      </label>
+      <label class="pp__label pp__label--row">
+        <span>Show rulers</span>
+        <input type="checkbox" [ngModel]="store.state().showRulers" (ngModelChange)="store.setShowRulers($event)" />
+      </label>
+    </div>
+  }
+</aside>

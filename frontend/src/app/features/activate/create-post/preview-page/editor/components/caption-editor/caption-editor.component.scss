@@ -1,0 +1,118 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.cap { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.cap__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cap__shell {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 0.85rem 1.65rem;
+
+  &:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+}
+
+.cap-editor {
+  min-height: 100px;
+  outline: none;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  resize: none;
+
+  &:empty::before {
+    content: attr(data-placeholder);
+    color: var(--text-placeholder);
+  }
+
+  ::ng-deep {
+    .cap-tag { color: #5BA6A6; font-weight: 500; }
+    .cap-mention { color: #4a6268; font-weight: 500; }
+    a { color: var(--accent); text-decoration: underline; }
+  }
+}
+
+.cap__counter {
+  position: absolute;
+  right: 0.85rem;
+  bottom: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+
+  &.is-warn { color: #C53030; font-weight: 500; }
+}
+
+.cap-toolbar {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 4px;
+  background: #1a1d1f;
+  color: #fff;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+
+  button {
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover { background: rgb(255 255 255 / 12%); }
+  }
+}
+
+.cap-emoji {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1d1f;
+  border-radius: var(--radius-sm);
+  padding: 6px;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+  box-shadow: var(--shadow-lg);
+  width: 240px;
+
+  button {
+    width: 22px;
+    height: 22px;
+    font-size: 1rem;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 3px;
+
+    &:hover { background: rgb(255 255 255 / 12%); }
+  }
+}

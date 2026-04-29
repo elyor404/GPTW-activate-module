@@ -1,0 +1,50 @@
+<div class="pb-backdrop" (click)="onBackdrop($event)">
+  <div class="pb" role="dialog" aria-modal="true" aria-labelledby="publish-title">
+    <header class="pb__head">
+      <h2 id="publish-title" class="pb__title">Publish post</h2>
+      <p class="pb__sub">Choose where and when to share.</p>
+    </header>
+
+    <div class="pb__body">
+      <div class="pb__group">
+        <label class="pb__label">Platforms</label>
+        <div class="pb__platforms">
+          @for (p of platforms; track p.id) {
+            <button
+              type="button"
+              class="pb__plat"
+              [class.is-on]="selected()[p.id]"
+              (click)="toggle(p.id)"
+            >
+              <span class="pb__plat-dot" [style.background]="p.color"></span>
+              <span>{{ p.label }}</span>
+              <span class="pb__plat-check" aria-hidden="true">{{ selected()[p.id] ? '✓' : '' }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="pb__group">
+        <label class="pb__label">Schedule</label>
+        <div class="pb__seg">
+          <button type="button" [class.is-on]="mode() === 'now'" (click)="setMode('now')">Publish now</button>
+          <button type="button" [class.is-on]="mode() === 'schedule'" (click)="setMode('schedule')">Schedule</button>
+        </div>
+
+        @if (mode() === 'schedule') {
+          <div class="pb__sched">
+            <input type="date" [value]="date()" (input)="onDate($any($event.target).value)" />
+            <input type="time" [value]="time()" (input)="onTime($any($event.target).value)" />
+          </div>
+        }
+      </div>
+    </div>
+
+    <footer class="pb__foot">
+      <button type="button" class="pb__btn pb__btn--ghost" (click)="cancel.emit()">Cancel</button>
+      <button type="button" class="pb__btn pb__btn--primary" [disabled]="!canPublish()" (click)="submit()">
+        {{ mode() === 'now' ? 'Publish now' : 'Schedule post' }}
+      </button>
+    </footer>
+  </div>
+</div>

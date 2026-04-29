@@ -1,0 +1,228 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cv-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--canvas);
+  overflow: hidden;
+
+  &.tool-move { cursor: grab; }
+  &.tool-text { cursor: text; }
+  &.tool-shape, &.tool-image { cursor: crosshair; }
+}
+
+.cv-scroll {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  scrollbar-width: thin;
+
+  &--with-rulers {
+    inset: 24px 0 0 24px;
+  }
+}
+
+.cv-stage {
+  position: relative;
+  flex-shrink: 0;
+  transform-origin: center center;
+  background: #fff;
+  box-shadow: 0 8px 32px rgb(0 0 0 / 14%), 0 0 0 1px rgb(0 0 0 / 6%);
+
+  &--grid {
+    background-image:
+      linear-gradient(to right, rgb(0 0 0 / 5%) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(0 0 0 / 5%) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+}
+
+.cv-element {
+  position: absolute;
+  user-select: none;
+  cursor: move;
+  outline: 1px solid transparent;
+
+  &--selected {
+    outline: 2px solid #5BA6A6;
+    outline-offset: 0;
+  }
+
+  &--locked { cursor: not-allowed; }
+  &--hidden { opacity: 0.25 !important; pointer-events: none; }
+}
+
+.cv-text {
+  width: 100%;
+  height: 100%;
+  outline: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: hidden;
+  pointer-events: auto;
+
+  &[contenteditable="true"] {
+    cursor: text;
+  }
+}
+
+.cv-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.cv-shape {
+  width: 100%;
+  height: 100%;
+
+  &--circle { border-radius: 50%; }
+  &--line { width: 100%; height: 100%; }
+}
+
+.handle-frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border: 2px solid #5BA6A6;
+  border-radius: 2px;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+
+  &-nw { top: 0; left: 0; cursor: nwse-resize; }
+  &-n  { top: 0; left: 50%; cursor: ns-resize; }
+  &-ne { top: 0; left: 100%; cursor: nesw-resize; }
+  &-e  { top: 50%; left: 100%; cursor: ew-resize; }
+  &-se { top: 100%; left: 100%; cursor: nwse-resize; }
+  &-s  { top: 100%; left: 50%; cursor: ns-resize; }
+  &-sw { top: 100%; left: 0; cursor: nesw-resize; }
+  &-w  { top: 50%; left: 0; cursor: ew-resize; }
+}
+
+.cv-marquee {
+  position: absolute;
+  background: rgb(91 166 166 / 12%);
+  border: 1px dashed #5BA6A6;
+  pointer-events: none;
+}
+
+.cv-snap {
+  position: absolute;
+  background: #5BA6A6;
+  pointer-events: none;
+  z-index: 999;
+
+  &--v {
+    top: 0;
+    bottom: 0;
+    width: 1px;
+  }
+
+  &--h {
+    left: 0;
+    right: 0;
+    height: 1px;
+  }
+}
+
+/* Rulers */
+.cv-ruler {
+  position: absolute;
+  background: #f7f8fa;
+  border: 1px solid var(--border);
+  z-index: 5;
+  font-size: 9px;
+  color: var(--text-muted);
+  user-select: none;
+
+  &--corner {
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+  }
+
+  &--top {
+    top: 0;
+    left: 24px;
+    right: 0;
+    height: 24px;
+    overflow: hidden;
+  }
+
+  &--left {
+    top: 24px;
+    left: 0;
+    bottom: 0;
+    width: 24px;
+    overflow: hidden;
+  }
+
+  &__inner {
+    position: relative;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+.cv-tick {
+  position: absolute;
+  top: 14px;
+  width: 1px;
+  height: 6px;
+  background: var(--border);
+
+  &--major {
+    height: 10px;
+    top: 10px;
+    background: var(--text-muted);
+  }
+
+  &--v {
+    top: auto;
+    left: 14px;
+    width: 6px;
+    height: 1px;
+
+    &.cv-tick--major {
+      width: 10px;
+      left: 10px;
+      height: 1px;
+    }
+  }
+
+  &__label {
+    position: absolute;
+    top: -10px;
+    left: 2px;
+    font-size: 9px;
+    line-height: 1;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  &--v &__label {
+    top: 2px;
+    left: -2px;
+    transform: rotate(-90deg);
+    transform-origin: left top;
+  }
+}

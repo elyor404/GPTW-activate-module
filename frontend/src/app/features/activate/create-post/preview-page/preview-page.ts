@@ -1,129 +1,176 @@
-import { Component, OnInit, OnDestroy, TemplateRef, ViewChild, AfterViewInit, HostListener } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  ViewEncapsulation,
+  computed,
+  effect,
+  inject,
+  signal
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { PostPreviewService, PostPreviewData } from '../../../../core/services/post-preview.service';
 import { HeaderContextService } from '../../../../core/services/header-context.service';
+import { LayoutUiService } from '../../../../core/services/layout-ui.service';
+import { EditorStore } from './editor/editor-store.service';
+import { ToolName, ShapeType, CanvasState } from './editor/editor-types';
+import { EditorCanvasComponent } from './editor/components/editor-canvas/editor-canvas.component';
+import { PropertiesPanelComponent } from './editor/components/properties-panel/properties-panel.component';
+import { LayersPanelComponent } from './editor/components/layers-panel/layers-panel.component';
+import { CaptionEditorComponent } from './editor/components/caption-editor/caption-editor.component';
+import { AiAssistantComponent } from './editor/components/ai-assistant/ai-assistant.component';
+import {
+  ApproveModalComponent
+} from './editor/components/approve-modal/approve-modal.component';
+import {
+  PublishModalComponent,
+  PublishPayload
+} from './editor/components/publish-modal/publish-modal.component';
 
-export interface CanvasElement {
-  id: string;
-  type: 'text' | 'image' | 'shape';
-  content?: string;
-  url?: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  color?: string;
-  fontSize?: number;
-  shapeType?: 'circle' | 'square';
-}
+const STORAGE_KEY = 'gptw.editor.draft';
 
 @Component({
   selector: 'app-preview-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    EditorCanvasComponent,
+    PropertiesPanelComponent,
+    LayersPanelComponent,
+    CaptionEditorComponent,
+    AiAssistantComponent,
+    ApproveModalComponent,
+    PublishModalComponent
+  ],
   templateUrl: './preview-page.html',
-  styleUrl: './preview-page.scss'
+  styleUrl: './preview-page.scss',
+  encapsulation: ViewEncapsulation.None
 })
 export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroy$ = new Subject<void>();
 
-  @ViewChild('headerLeft') headerLeft!: TemplateRef<unknown>;
-  @ViewChild('headerCenter') headerCenter!: TemplateRef<unknown>;
-  @ViewChild('headerRight') headerRight!: TemplateRef<unknown>;
+  @ViewChild('headerLeft', { static: true }) headerLeft!: TemplateRef<unknown>;
+  @ViewChild('headerCenter', { static: true }) headerCenter!: TemplateRef<unknown>;
+  @ViewChild('headerRight', { static: true }) headerRight!: TemplateRef<unknown>;
+  @ViewChild(CaptionEditorComponent) caption?: CaptionEditorComponent;
 
-  previewData: PostPreviewData | null = null;
-  projectName = 'Project Name';
-  zoomLevel = 100;
+  protected readonly store = inject(EditorStore);
+  protected readonly layoutUi = inject(LayoutUiService);
+  private readonly router = inject(Router);
+  private readonly postPreviewService = inject(PostPreviewService);
+  private readonly headerContextService = inject(HeaderContextService);
 
-  activeTool: 'select' | 'move' | 'text' | 'image' | 'shape' | 'ai' = 'select';
-  canvasElements: CanvasElement[] = [];
-  selectedElementId: string | null = null;
+  protected readonly previewData = signal<PostPreviewData | null>(null);
+  protected readonly projectName = 'Project Name';
+  protected readonly shapeMenuOpen = signal(false);
+  protected readonly approveOpen = signal(false);
+  protected readonly publishOpen = signal(false);
+  protected readonly toastMessage = signal<string | null>(null);
+  protected readonly mobileBlocked = signal(false);
 
-  isDragging = false;
-  isResizing = false;
-  private dragStartX = 0;
-  private dragStartY = 0;
-  private elementStartX = 0;
-  private elementStartY = 0;
-  private elementStartWidth = 0;
-  private elementStartHeight = 0;
+  protected readonly aiAssistantVisible = computed(() => this.store.showAiAssistant());
 
-  availableColors = ['#2D3748', '#E53E3E', '#38A169', '#3182CE', '#D69E2E', '#805AD5', '#FFFFFF', '#000000'];
+  private initialised = false;
 
-  constructor(
-    private router: Router,
-    private postPreviewService: PostPreviewService,
-    private headerContextService: HeaderContextService
-  ) {}
+  constructor() {
+    effect(() => {
+      const tool = this.store.activeTool();
+      if (tool !== 'shape') this.shapeMenuOpen.set(false);
+    });
+
+    effect(() => {
+      const aiPlus = this.layoutUi.activateAiPlusEnabled();
+      this.store.toggleAiAssistant(aiPlus);
+    });
+  }
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
-    if ((event.key === 'Delete' || event.key === 'Backspace') && this.selectedElementId) {
-      // Don't delete if user is editing text
-      const target = event.target as HTMLElement;
-      if (target.contentEditable === 'true' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-        return;
-      }
-      this.deleteSelected();
+    const target = event.target as HTMLElement | null;
+    const inEditable = !!target && (
+      target.tagName === 'INPUT' ||
+      target.tagName === 'TEXTAREA' ||
+      target.isContentEditable
+    );
+
+    const meta = event.ctrlKey || event.metaKey;
+
+    if (meta && event.key.toLowerCase() === 'z') {
+      event.preventDefault();
+      if (event.shiftKey) this.store.redo();
+      else this.store.undo();
+      return;
     }
+    if (meta && (event.key === 'y' || event.key === 'Y')) {
+      event.preventDefault();
+      this.store.redo();
+      return;
+    }
+    if (meta && event.key.toLowerCase() === 'd') {
+      if (inEditable) return;
+      event.preventDefault();
+      this.store.duplicateSelected();
+      return;
+    }
+    if (meta && event.key.toLowerCase() === 'a') {
+      if (inEditable) return;
+      event.preventDefault();
+      this.store.selectAll();
+      return;
+    }
+    if ((event.key === 'Delete' || event.key === 'Backspace') && !inEditable) {
+      if (this.store.selectedIds().length === 0) return;
+      event.preventDefault();
+      this.store.deleteSelected();
+      return;
+    }
+    if (event.key === 'Escape') {
+      this.store.clearSelection();
+      this.shapeMenuOpen.set(false);
+      this.approveOpen.set(false);
+      this.publishOpen.set(false);
+      return;
+    }
+    if (
+      !inEditable &&
+      ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key) &&
+      this.store.selectedIds().length > 0
+    ) {
+      event.preventDefault();
+      const step = event.shiftKey ? 10 : 1;
+      const dx = event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0;
+      const dy = event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0;
+      this.store.nudgeSelected(dx, dy);
+    }
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.updateMobileGate();
   }
 
   ngOnInit(): void {
-    this.postPreviewService.getPreviewData()
+    this.updateMobileGate();
+    this.postPreviewService
+      .getPreviewData()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(data => {
-        this.previewData = data;
-        this.initializeBaseElements(data);
+      .subscribe((data) => {
+        this.previewData.set(data);
+        if (!this.initialised) {
+          this.initialised = true;
+          if (!this.tryLoadDraft()) {
+            this.bootstrapFromPreview(data);
+          }
+        }
       });
-  }
-
-  private initializeBaseElements(data: PostPreviewData): void {
-    if (this.canvasElements.length > 0) return;
-
-    let canvasWidth = 400;
-    let canvasHeight = 400;
-
-    switch (data.size) {
-      case 'story':
-        canvasWidth = 300;
-        canvasHeight = 533;
-        break;
-      case 'landscape':
-        canvasWidth = 500;
-        canvasHeight = 281;
-        break;
-      case 'square':
-        canvasWidth = 400;
-        canvasHeight = 400;
-        break;
-    }
-
-    if (data.badgeUrl) {
-      this.canvasElements.push({
-        id: 'base-badge',
-        type: 'image',
-        url: data.badgeUrl,
-        x: 15,
-        y: 15,
-        width: 60,
-        height: 60
-      });
-    }
-
-    if (data.logoUrl) {
-      this.canvasElements.push({
-        id: 'base-logo',
-        type: 'image',
-        url: data.logoUrl,
-        x: canvasWidth - 95,
-        y: canvasHeight - 55,
-        width: 80,
-        height: 40
-      });
-    }
   }
 
   ngAfterViewInit(): void {
@@ -143,196 +190,209 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.destroy$.complete();
   }
 
-  setTool(tool: 'select' | 'move' | 'text' | 'image' | 'shape' | 'ai'): void {
-    this.activeTool = tool;
-    if (tool !== 'select' && tool !== 'move') {
-      this.addElement(tool);
-    }
+  private updateMobileGate(): void {
+    this.mobileBlocked.set(window.innerWidth < 768);
   }
 
-  private addElement(type: string): void {
-    const id = Date.now().toString();
-    let newElement: CanvasElement;
-
-    switch (type) {
-      case 'text':
-        newElement = {
-          id,
-          type: 'text',
-          content: 'New Text',
-          x: 50,
-          y: 50,
-          width: 150,
-          height: 40,
-          fontSize: 24,
-          color: '#2D3748'
-        };
-        break;
-      case 'image':
-        newElement = {
-          id,
-          type: 'image',
-          url: '/posts/placeholder.png',
-          x: 100,
-          y: 100,
-          width: 200,
-          height: 200
-        };
-        break;
-      case 'shape':
-        newElement = {
-          id,
-          type: 'shape',
-          shapeType: 'square',
-          color: '#5BA6A6',
-          x: 150,
-          y: 150,
-          width: 100,
-          height: 100
-        };
-        break;
-      case 'ai':
-        newElement = {
-          id,
-          type: 'text',
-          content: '✨ AI Generated Content',
-          x: 50,
-          y: 200,
-          width: 250,
-          height: 50,
-          fontSize: 20,
-          color: '#5A757C'
-        };
-        break;
-      default:
-        return;
-    }
-
-    this.canvasElements.push(newElement);
-    this.selectedElementId = id;
-    this.activeTool = 'select';
-  }
-
-  selectElement(id: string, event: MouseEvent): void {
-    event.stopPropagation();
-    this.selectedElementId = id;
-    
-    if (this.activeTool === 'move') {
-      this.startDragging(id, event);
-    }
-  }
-
-  deselectAll(): void {
-    this.selectedElementId = null;
-  }
-
-  private startDragging(id: string, event: MouseEvent): void {
-    const element = this.canvasElements.find(e => e.id === id);
-    if (!element) return;
-
-    this.isDragging = true;
-    this.dragStartX = event.clientX;
-    this.dragStartY = event.clientY;
-    this.elementStartX = element.x;
-    this.elementStartY = element.y;
-  }
-
-  startResizing(id: string, event: MouseEvent): void {
-    event.stopPropagation();
-    const element = this.canvasElements.find(e => e.id === id);
-    if (!element) return;
-
-    this.isResizing = true;
-    this.dragStartX = event.clientX;
-    this.dragStartY = event.clientY;
-    this.elementStartWidth = element.width;
-    this.elementStartHeight = element.height;
-  }
-
-  @HostListener('window:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent): void {
-    if (!this.selectedElementId) return;
-    const element = this.canvasElements.find(e => e.id === this.selectedElementId);
-    if (!element) return;
-
-    const dx = (event.clientX - this.dragStartX) / (this.zoomLevel / 100);
-    const dy = (event.clientY - this.dragStartY) / (this.zoomLevel / 100);
-
-    if (this.isDragging) {
-      element.x = this.elementStartX + dx;
-      element.y = this.elementStartY + dy;
-    } else if (this.isResizing) {
-      element.width = Math.max(20, this.elementStartWidth + dx);
-      element.height = Math.max(20, this.elementStartHeight + dy);
-      
-      // Also scale font size if it's text
-      if (element.type === 'text') {
-         element.fontSize = Math.max(8, (element.height / this.elementStartHeight) * (element.fontSize || 24));
+  /**
+   * If there's a previously saved draft for this preview, load it.
+   * Returns true when a draft was applied.
+   */
+  private tryLoadDraft(): boolean {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      const parsed = JSON.parse(raw) as CanvasState;
+      if (parsed && parsed.elements && parsed.canvasSize) {
+        this.store.loadState(parsed);
+        return true;
       }
+    } catch {
+      /* ignore */
+    }
+    return false;
+  }
+
+  private bootstrapFromPreview(data: PostPreviewData | null): void {
+    if (!data) return;
+    this.store.resetToDefaults();
+    let width = 1080;
+    let height = 1080;
+    if (data.size === 'story') {
+      width = 1080;
+      height = 1920;
+    } else if (data.size === 'landscape') {
+      width = 1600;
+      height = 900;
+    }
+    this.store.setCanvasSize(width, height);
+    if (data.colour) this.store.setBackground(data.colour);
+
+    if (data.templateUrl) {
+      this.store.addImage(data.templateUrl, {
+        x: 0,
+        y: 0,
+        width,
+        height,
+        name: 'Template'
+      });
+    }
+
+    if (data.uploadedFiles?.length && data.postType === 'image') {
+      const file = data.uploadedFiles[0];
+      const w = width * 0.7;
+      const h = height * 0.5;
+      this.store.addImage(file.url, {
+        name: 'Uploaded photo',
+        x: (width - w) / 2,
+        y: (height - h) / 2,
+        width: w,
+        height: h
+      });
+    }
+
+    if (data.badgeUrl) {
+      this.store.addImage(data.badgeUrl, {
+        name: 'Badge',
+        x: width * 0.04,
+        y: height * 0.04,
+        width: width * 0.18,
+        height: width * 0.18
+      });
+    }
+
+    if (data.logoUrl) {
+      this.store.addImage(data.logoUrl, {
+        name: 'Logo',
+        x: width * 0.7,
+        y: height - height * 0.14,
+        width: width * 0.25,
+        height: width * 0.1
+      });
+    }
+
+    this.store.addText({
+      content: 'Headline goes here',
+      x: width * 0.08,
+      y: height * 0.7,
+      width: width * 0.7,
+      height: 80,
+      fontSize: Math.round(width * 0.05),
+      color: data.colour && this.isDark(data.colour) ? '#FFFFFF' : '#1a1d1f',
+      name: 'Headline'
+    });
+
+    if (data.description) {
+      this.store.setCaption(data.description);
+      this.store.commitCaption();
+    }
+
+    this.store.clearSelection();
+  }
+
+  private isDark(hex: string): boolean {
+    const c = hex.replace('#', '');
+    if (c.length !== 6) return false;
+    const r = parseInt(c.slice(0, 2), 16);
+    const g = parseInt(c.slice(2, 4), 16);
+    const b = parseInt(c.slice(4, 6), 16);
+    const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+    return lum < 128;
+  }
+
+  protected setTool(tool: ToolName, event?: MouseEvent): void {
+    event?.stopPropagation();
+    if (tool === 'shape') {
+      this.store.setActiveTool('shape');
+      this.shapeMenuOpen.update((v) => !v);
+      return;
+    }
+    if (tool === 'ai') {
+      this.store.setActiveTool('ai');
+      this.store.toggleAiAssistant(true);
+      return;
+    }
+    this.shapeMenuOpen.set(false);
+    this.store.setActiveTool(tool);
+  }
+
+  protected pickShape(shape: ShapeType): void {
+    this.store.addShape(shape);
+    this.store.setActiveTool('select');
+    this.shapeMenuOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.shape-menu') && !target.closest('[data-tool="shape"]')) {
+      this.shapeMenuOpen.set(false);
     }
   }
 
-  @HostListener('window:mouseup')
-  onMouseUp(): void {
-    this.isDragging = false;
-    this.isResizing = false;
+  protected zoomIn(): void {
+    this.store.zoomIn();
+  }
+  protected zoomOut(): void {
+    this.store.zoomOut();
+  }
+  protected resetZoom(): void {
+    this.store.resetZoom();
   }
 
-  updateTextColor(color: string): void {
-    const element = this.canvasElements.find(e => e.id === this.selectedElementId);
-    if (element && element.type === 'text') {
-      element.color = color;
-    }
+  protected onApplyCaptionFromAi(text: string): void {
+    this.caption?.setText(text);
   }
 
-  getSelectedElement(): CanvasElement | null {
-    return this.canvasElements.find(e => e.id === this.selectedElementId) || null;
+  protected onCloseAi(): void {
+    this.store.toggleAiAssistant(false);
   }
 
-  deleteSelected(): void {
-    if (this.selectedElementId) {
-      this.canvasElements = this.canvasElements.filter(e => e.id !== this.selectedElementId);
-      this.selectedElementId = null;
-    }
-  }
-
-  goBack(): void {
+  protected goBack(): void {
     this.router.navigate(['/activate/social-posts/create-post']);
   }
 
-  saveDraft(): void {
-    console.log('Save Draft clicked', { data: this.previewData, elements: this.canvasElements });
-  }
-
-  approve(): void {
-    console.log('Approve clicked', this.previewData);
-  }
-
-  publish(): void {
-    console.log('Publish clicked', this.previewData);
-    this.postPreviewService.clearData();
-    this.router.navigate(['/activate/social-posts']);
-  }
-
-  zoomIn(): void {
-    if (this.zoomLevel < 200) {
-      this.zoomLevel += 10;
+  protected saveDraft(): void {
+    try {
+      const state = this.store.serialize();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      this.flash('Draft saved');
+    } catch {
+      this.flash('Could not save draft');
     }
   }
 
-  zoomOut(): void {
-    if (this.zoomLevel > 50) {
-      this.zoomLevel -= 10;
-    }
+  protected openApprove(): void {
+    this.approveOpen.set(true);
   }
 
-  getPreviewSizeClass(): string {
-    if (!this.previewData) return '';
-    switch (this.previewData.size) {
-      case 'story': return 'preview-canvas--story';
-      case 'landscape': return 'preview-canvas--landscape';
-      case 'square': return 'preview-canvas--square';
-      default: return '';
-    }
+  protected onApproveConfirmed(): void {
+    this.approveOpen.set(false);
+    this.flash('Post approved');
+  }
+
+  protected openPublish(): void {
+    this.publishOpen.set(true);
+  }
+
+  protected onPublishConfirmed(payload: PublishPayload): void {
+    this.publishOpen.set(false);
+    const where = payload.platforms.join(', ');
+    const when = payload.publishNow ? 'now' : `at ${payload.scheduledAt}`;
+    this.flash(`Publishing to ${where} ${when}…`);
+    setTimeout(() => {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        /* ignore */
+      }
+      this.postPreviewService.clearData();
+      this.router.navigate(['/activate/social-posts']);
+    }, 900);
+  }
+
+  private flash(message: string): void {
+    this.toastMessage.set(message);
+    setTimeout(() => this.toastMessage.set(null), 2200);
   }
 }

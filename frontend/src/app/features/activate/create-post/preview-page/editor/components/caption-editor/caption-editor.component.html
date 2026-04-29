@@ -1,0 +1,43 @@
+<div class="cap">
+  <label class="cap__label">Caption</label>
+  <div class="cap__shell">
+    <div
+      #editor
+      class="cap-editor"
+      contenteditable="true"
+      role="textbox"
+      aria-multiline="true"
+      data-placeholder="Write a caption. Use #hashtags or @mentions…"
+      (input)="onInput($event)"
+      (blur)="onBlur()"
+      (mouseup)="onSelect()"
+      (keyup)="onSelect()"
+    ></div>
+
+    @if (toolbar(); as t) {
+      <div class="cap-toolbar" [style.left.px]="t.x" [style.top.px]="t.y">
+        <button type="button" (mousedown)="$event.preventDefault()" (click)="exec('bold')" title="Bold"><strong>B</strong></button>
+        <button type="button" (mousedown)="$event.preventDefault()" (click)="exec('italic')" title="Italic"><em>I</em></button>
+        <button type="button" (mousedown)="$event.preventDefault()" (click)="insertLink()" title="Link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+          </svg>
+        </button>
+        <button type="button" (mousedown)="$event.preventDefault()" (click)="toggleEmoji()" title="Emoji">😊</button>
+
+        @if (emojiOpen()) {
+          <div class="cap-emoji">
+            @for (e of emojis; track e) {
+              <button type="button" (mousedown)="$event.preventDefault()" (click)="insertEmoji(e)">{{ e }}</button>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <div class="cap__counter" [class.is-warn]="charCount() > maxLength * 0.9">
+      {{ charCount() }} / {{ maxLength }}
+    </div>
+  </div>
+</div>

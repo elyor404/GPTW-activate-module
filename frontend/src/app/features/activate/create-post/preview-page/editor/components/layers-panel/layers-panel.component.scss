@@ -1,0 +1,132 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+  flex-shrink: 0;
+  background: #fff;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.lp {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+
+  &--collapsed { height: auto; }
+}
+
+.lp__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  background: #fff;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  cursor: pointer;
+
+  &:hover { background: var(--surface-muted); }
+}
+
+.lp__title { flex: 1; text-align: left; }
+
+.lp__count {
+  background: var(--surface-muted);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 1px 8px;
+  font-size: 0.7rem;
+}
+
+.lp__chevron { color: var(--text-muted); }
+
+.lp--collapsed .lp__chevron { transform: rotate(-90deg); }
+
+.lp__list {
+  list-style: none;
+  margin: 0;
+  padding: 0.4rem;
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.lp__empty {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.lp__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-size: 0.85rem;
+  color: var(--text);
+  user-select: none;
+
+  &:hover { background: var(--surface-muted); }
+  &--active { background: color-mix(in srgb, var(--accent) 10%, white); border-color: var(--accent); }
+}
+
+.lp__icon {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-muted);
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.lp__name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lp__name-input {
+  flex: 1;
+  border: 1px solid var(--accent);
+  background: #fff;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font: inherit;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.lp__act {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover { background: rgb(0 0 0 / 6%); color: var(--text); }
+  &.is-off { color: var(--text-placeholder); }
+  &.is-on { color: var(--accent); }
+}

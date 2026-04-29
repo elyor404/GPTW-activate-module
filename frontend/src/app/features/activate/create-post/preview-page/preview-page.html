@@ -1,187 +1,129 @@
 <ng-template #headerLeft>
   <button class="back-btn" (click)="goBack()">BACK</button>
-  <img src="/logo.png" alt="Logo" class="header-logo" />
+  <span class="project-name">{{ projectName }}</span>
 </ng-template>
 
 <ng-template #headerCenter>
-  <div class="toolbar-container">
-    <div class="toolbar">
+  <div class="ed-toolbar">
+    <button class="tool-btn" [class.tool-btn--active]="store.activeTool() === 'select'" (click)="setTool('select')" title="Select (V)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+      </svg>
+    </button>
+    <button class="tool-btn" [class.tool-btn--active]="store.activeTool() === 'move'" (click)="setTool('move')" title="Pan (H)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>
+      </svg>
+    </button>
+    <button class="tool-btn" [class.tool-btn--active]="store.activeTool() === 'text'" (click)="setTool('text')" title="Text (T)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4v3h5.5v12h3V7H19V4H5z"/></svg>
+    </button>
+    <button class="tool-btn" [class.tool-btn--active]="store.activeTool() === 'image'" (click)="setTool('image')" title="Image (I)">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+      </svg>
+    </button>
+    <div class="tool-shape-wrap">
       <button
         class="tool-btn"
-        [class.tool-btn--active]="activeTool === 'select'"
-        (click)="setTool('select')"
-        title="Select"
+        data-tool="shape"
+        [class.tool-btn--active]="store.activeTool() === 'shape'"
+        (click)="setTool('shape', $event)"
+        title="Shapes"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
-        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
       </button>
-      <button
-        class="tool-btn"
-        [class.tool-btn--active]="activeTool === 'move'"
-        (click)="setTool('move')"
-        title="Move & Resize"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>
-        </svg>
-      </button>
-      <button
-        class="tool-btn"
-        [class.tool-btn--active]="activeTool === 'text'"
-        (click)="setTool('text')"
-        title="Text"
-      >
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M5 4v3h5.5v12h3V7H19V4H5z"/>
-        </svg>
-      </button>
-      <button
-        class="tool-btn"
-        [class.tool-btn--active]="activeTool === 'image'"
-        (click)="setTool('image')"
-        title="Image"
-      >
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-        </svg>
-      </button>
-      <button
-        class="tool-btn"
-        [class.tool-btn--active]="activeTool === 'shape'"
-        (click)="setTool('shape')"
-        title="Shape"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-        </svg>
-      </button>
-      <button
-        class="tool-btn"
-        [class.tool-btn--active]="activeTool === 'ai'"
-        (click)="setTool('ai')"
-        title="AI"
-      >
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Contextual Toolbar for Text -->
-    @if (getSelectedElement()?.type === 'text') {
-      <div class="context-toolbar">
-        <div class="color-picker-mini">
-          @for (color of availableColors; track color) {
-            <button 
-              class="color-dot" 
-              [style.backgroundColor]="color" 
-              [class.color-dot--active]="getSelectedElement()?.color === color"
-              (click)="updateTextColor(color)"
-            ></button>
-          }
+      @if (shapeMenuOpen()) {
+        <div class="shape-menu" (click)="$event.stopPropagation()">
+          <button (click)="pickShape('rectangle')">
+            <span class="shape-icon"><span class="shape-icon__rect"></span></span> Rectangle
+          </button>
+          <button (click)="pickShape('circle')">
+            <span class="shape-icon"><span class="shape-icon__circle"></span></span> Circle
+          </button>
+          <button (click)="pickShape('line')">
+            <span class="shape-icon"><span class="shape-icon__line"></span></span> Line
+          </button>
+          <button (click)="pickShape('triangle')">
+            <span class="shape-icon"><svg viewBox="0 0 12 12"><polygon points="6,1 11,11 1,11" fill="currentColor"/></svg></span> Triangle
+          </button>
         </div>
-      </div>
-    }
+      }
+    </div>
+    <button class="tool-btn tool-btn--ai" [class.tool-btn--active]="store.showAiAssistant()" (click)="setTool('ai')" title="AI Magic">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg>
+    </button>
+
+    <span class="tool-divider"></span>
+
+    <button class="tool-btn" (click)="store.undo()" [disabled]="!store.canUndo()" title="Undo (Ctrl+Z)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 00-15-6.7L3 13"/></svg>
+    </button>
+    <button class="tool-btn" (click)="store.redo()" [disabled]="!store.canRedo()" title="Redo (Ctrl+Shift+Z)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0115-6.7L21 13"/></svg>
+    </button>
   </div>
 </ng-template>
 
 <ng-template #headerRight>
   <div class="zoom-control">
-    <button class="zoom-btn" (click)="zoomOut()">-</button>
-    <span class="zoom-text">{{ zoomLevel }}%</span>
-    <button class="zoom-btn" (click)="zoomIn()">+</button>
+    <button class="zoom-btn" (click)="zoomOut()" aria-label="Zoom out">−</button>
+    <button class="zoom-text" (click)="resetZoom()" title="Reset to 100%">{{ store.zoom() }}%</button>
+    <button class="zoom-btn" (click)="zoomIn()" aria-label="Zoom in">+</button>
   </div>
   <button class="action-btn action-btn--outline" (click)="saveDraft()">SAVE DRAFT</button>
-  <button class="action-btn action-btn--outline" (click)="approve()">APPROVE</button>
-  <button class="action-btn action-btn--primary" (click)="publish()">PUBLISH</button>
+  <button class="action-btn action-btn--outline" (click)="openApprove()">APPROVE</button>
+  <button class="action-btn action-btn--primary" (click)="openPublish()">PUBLISH</button>
 </ng-template>
 
-<div class="preview-page">
-  <!-- Main Preview Area -->
-  <main class="preview-main" (click)="deselectAll()">
-    @if (previewData) {
-      <div class="preview-content">
-        <!-- Canvas Area -->
-        <div
-          class="preview-canvas"
-          [ngClass]="getPreviewSizeClass()"
-          [style.transform]="'scale(' + zoomLevel / 100 + ')'"
-          [style.backgroundColor]="previewData.colour || '#f0f0f0'"
-        >
-          <!-- Background Template -->
-          @if (previewData.templateUrl) {
-            <img [src]="previewData.templateUrl" alt="Template" class="preview-canvas__background" />
-          }
+<div class="ed-page">
+  @if (mobileBlocked()) {
+    <div class="ed-mobile-gate">
+      <div class="ed-mobile-gate__card">
+        <h2>Editor available on desktop</h2>
+        <p>The post editor needs more space than your screen offers. Please open this on a wider window or desktop device.</p>
+        <button type="button" class="action-btn action-btn--outline" (click)="goBack()">Go back</button>
+      </div>
+    </div>
+  } @else {
+    <div class="ed-shell">
+      <app-layers-panel></app-layers-panel>
 
-          <!-- Post Content based on Type -->
-          <div class="preview-canvas__content">
-            @if (previewData.postType === 'video' && previewData.uploadedFiles.length > 0) {
-              <video [src]="previewData.uploadedFiles[0].url" class="preview-canvas__media" autoplay muted loop></video>
-            } @else if (previewData.postType === 'image' && previewData.uploadedFiles.length > 0) {
-              <img [src]="previewData.uploadedFiles[0].url" alt="Uploaded" class="preview-canvas__media" />
-            } @else if (!previewData.templateUrl && previewData.uploadedFiles.length === 0) {
-               <div class="preview-canvas__placeholder">
-                <span>Preview</span>
-              </div>
-            }
-          </div>
-
-          <!-- Dynamic Elements -->
-          @for (element of canvasElements; track element.id) {
-            <div
-              class="canvas-element"
-              [class.canvas-element--selected]="selectedElementId === element.id"
-              [class.canvas-element--move]="activeTool === 'move'"
-              [style.left.px]="element.x"
-              [style.top.px]="element.y"
-              [style.width.px]="element.width"
-              [style.height.px]="element.height"
-              (mousedown)="selectElement(element.id, $event)"
-            >
-              @if (element.type === 'text') {
-                <div
-                  class="canvas-element__text"
-                  [style.color]="element.color"
-                  [style.fontSize.px]="element.fontSize"
-                  contenteditable="true"
-                  (blur)="element.content = $any($event.target).innerText"
-                >
-                  {{ element.content }}
-                </div>
-              } @else if (element.type === 'image') {
-                <img [src]="element.url" class="canvas-element__image" draggable="false" />
-              } @else if (element.type === 'shape') {
-                <div
-                  class="canvas-element__shape"
-                  [class.canvas-element__shape--circle]="element.shapeType === 'circle'"
-                  [style.backgroundColor]="element.color"
-                ></div>
-              }
-
-              <!-- Editor Handles -->
-              @if (selectedElementId === element.id) {
-                <div class="element-controls">
-                  <button class="element-delete" (click)="deleteSelected(); $event.stopPropagation()" title="Delete">×</button>
-                  <div class="element-resize" (mousedown)="startResizing(element.id, $event)"></div>
-                </div>
-              }
-            </div>
-          }
+      <section class="ed-main">
+        <div class="ed-canvas-wrap">
+          <app-editor-canvas></app-editor-canvas>
         </div>
+        <div class="ed-caption-wrap">
+          <app-caption-editor></app-caption-editor>
+        </div>
+      </section>
 
-        <!-- Description Box -->
-        @if (previewData.description) {
-          <div class="preview-description">
-            <p>{{ previewData.description }}</p>
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="preview-empty">
-        <p>No preview data available. Please go back and select your post options.</p>
-        <button class="action-btn action-btn--primary" (click)="goBack()">Go Back</button>
-      </div>
+      <app-properties-panel></app-properties-panel>
+    </div>
+
+    @if (aiAssistantVisible()) {
+      <app-ai-assistant
+        (close)="onCloseAi()"
+        (applyCaption)="onApplyCaptionFromAi($event)"
+      ></app-ai-assistant>
     }
-  </main>
+
+    @if (approveOpen()) {
+      <app-approve-modal
+        (approve)="onApproveConfirmed()"
+        (cancel)="approveOpen.set(false)"
+      ></app-approve-modal>
+    }
+
+    @if (publishOpen()) {
+      <app-publish-modal
+        (publish)="onPublishConfirmed($event)"
+        (cancel)="publishOpen.set(false)"
+      ></app-publish-modal>
+    }
+
+    @if (toastMessage(); as msg) {
+      <div class="ed-toast">{{ msg }}</div>
+    }
+  }
 </div>

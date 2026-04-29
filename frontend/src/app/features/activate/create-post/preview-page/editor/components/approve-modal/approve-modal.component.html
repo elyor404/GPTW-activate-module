@@ -1,0 +1,90 @@
+<div class="md-backdrop" (click)="onBackdrop($event)">
+  <div class="md" role="dialog" aria-modal="true" aria-labelledby="approve-title">
+    <header class="md__head">
+      <h2 id="approve-title" class="md__title">Approve post?</h2>
+      <p class="md__sub">Review the final preview before approving.</p>
+    </header>
+
+    <div class="md__body">
+      <div class="md__thumb-wrap">
+        <div
+          class="md__thumb"
+          [style.width.px]="state().canvasSize.width * thumbScale()"
+          [style.height.px]="state().canvasSize.height * thumbScale()"
+          [style.background]="state().background"
+        >
+          <div
+            class="md__thumb-inner"
+            [style.width.px]="state().canvasSize.width"
+            [style.height.px]="state().canvasSize.height"
+            [style.transform]="'scale(' + thumbScale() + ')'"
+          >
+            @for (el of elements(); track el.id) {
+              @if (el.visible) {
+                <div
+                  class="md-el"
+                  [style.left.px]="el.x"
+                  [style.top.px]="el.y"
+                  [style.width.px]="el.width"
+                  [style.height.px]="el.height"
+                  [style.opacity]="el.opacity"
+                  [style.transform]="'rotate(' + el.rotation + 'deg)'"
+                  [style.zIndex]="el.zIndex"
+                >
+                  @if (el.type === 'text') {
+                    @let t = asText(el);
+                    <div
+                      class="md-el__text"
+                      [style.fontFamily]="t.fontFamily"
+                      [style.fontSize.px]="t.fontSize"
+                      [style.fontWeight]="t.fontWeight"
+                      [style.fontStyle]="t.italic ? 'italic' : 'normal'"
+                      [style.textDecoration]="t.underline ? 'underline' : 'none'"
+                      [style.color]="t.color"
+                      [style.textAlign]="t.textAlign"
+                      [style.lineHeight]="t.lineHeight"
+                      [style.letterSpacing.px]="t.letterSpacing"
+                    >{{ t.content }}</div>
+                  } @else if (el.type === 'image') {
+                    @let i = asImage(el);
+                    <img
+                      class="md-el__img"
+                      [src]="i.url"
+                      alt=""
+                      [style.filter]="getFilterCss(i.filter)"
+                      [style.borderRadius.px]="i.borderRadius"
+                    />
+                  } @else if (el.type === 'shape') {
+                    @let s = asShape(el);
+                    @if (s.shape === 'rectangle') {
+                      <div class="md-el__shape" [style.background]="s.fill" [style.borderRadius.px]="s.borderRadius" [style.border]="s.strokeWidth + 'px solid ' + s.stroke"></div>
+                    } @else if (s.shape === 'circle') {
+                      <div class="md-el__shape md-el__shape--circle" [style.background]="s.fill" [style.border]="s.strokeWidth + 'px solid ' + s.stroke"></div>
+                    } @else if (s.shape === 'line') {
+                      <div class="md-el__shape" [style.background]="s.fill"></div>
+                    } @else if (s.shape === 'triangle') {
+                      <svg class="md-el__shape" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <polygon points="50,5 95,95 5,95" [attr.fill]="s.fill" [attr.stroke]="s.stroke" [attr.stroke-width]="s.strokeWidth"/>
+                      </svg>
+                    }
+                  }
+                </div>
+              }
+            }
+          </div>
+        </div>
+        <div class="md__dim">{{ state().canvasSize.width }} × {{ state().canvasSize.height }}</div>
+      </div>
+
+      <div class="md__caption">
+        <h4>Caption</h4>
+        <p>{{ state().caption || 'No caption set.' }}</p>
+      </div>
+    </div>
+
+    <footer class="md__foot">
+      <button type="button" class="md__btn md__btn--ghost" (click)="cancel.emit()">Cancel</button>
+      <button type="button" class="md__btn md__btn--primary" (click)="approve.emit()">Approve</button>
+    </footer>
+  </div>
+</div>

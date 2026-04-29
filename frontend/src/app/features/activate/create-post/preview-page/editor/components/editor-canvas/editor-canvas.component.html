@@ -1,0 +1,154 @@
+<div class="cv-viewport" [class]="getCursorClass()" #viewport>
+  @if (showRulers()) {
+    <div class="cv-ruler cv-ruler--corner"></div>
+    <div class="cv-ruler cv-ruler--top">
+      <div class="cv-ruler__inner" [style.width.px]="canvasSize().width * displayScale()">
+        @for (t of rulerHTicks(); track t.px) {
+          <div class="cv-tick" [class.cv-tick--major]="t.major" [style.left.px]="t.px * displayScale()">
+            @if (t.label) {
+              <span class="cv-tick__label">{{ t.label }}</span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="cv-ruler cv-ruler--left">
+      <div class="cv-ruler__inner" [style.height.px]="canvasSize().height * displayScale()">
+        @for (t of rulerVTicks(); track t.px) {
+          <div class="cv-tick cv-tick--v" [class.cv-tick--major]="t.major" [style.top.px]="t.px * displayScale()">
+            @if (t.label) {
+              <span class="cv-tick__label">{{ t.label }}</span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="cv-scroll" #scroll [class.cv-scroll--with-rulers]="showRulers()">
+    <div
+      class="cv-stage"
+      #stage
+      [style.width.px]="canvasSize().width"
+      [style.height.px]="canvasSize().height"
+      [style.transform]="'scale(' + displayScale() + ')'"
+      [style.background]="background()"
+      [class.cv-stage--grid]="showGrid()"
+      (mousedown)="onStageMouseDown($event)"
+    >
+      @for (el of elements(); track el.id) {
+        <div
+          class="cv-element"
+          [class.cv-element--selected]="selectedIds().includes(el.id)"
+          [class.cv-element--locked]="el.locked"
+          [class.cv-element--hidden]="!el.visible"
+          [style.left.px]="el.x"
+          [style.top.px]="el.y"
+          [style.width.px]="el.width"
+          [style.height.px]="el.height"
+          [style.opacity]="el.opacity"
+          [style.transform]="'rotate(' + el.rotation + 'deg)'"
+          [style.zIndex]="el.zIndex"
+          (mousedown)="onElementMouseDown($event, el)"
+          (dblclick)="onElementDoubleClick($event, el)"
+        >
+          @if (el.type === 'text') {
+            @let txt = asText(el);
+            <div
+              class="cv-text"
+              [attr.data-text-edit]="el.id"
+              [attr.contenteditable]="editingId() === el.id"
+              [style.fontFamily]="txt.fontFamily"
+              [style.fontSize.px]="txt.fontSize"
+              [style.fontWeight]="txt.fontWeight"
+              [style.fontStyle]="txt.italic ? 'italic' : 'normal'"
+              [style.textDecoration]="txt.underline ? 'underline' : 'none'"
+              [style.color]="txt.color"
+              [style.textAlign]="txt.textAlign"
+              [style.lineHeight]="txt.lineHeight"
+              [style.letterSpacing.px]="txt.letterSpacing"
+              (blur)="onTextBlur($event, txt)"
+            >{{ txt.content }}</div>
+          } @else if (el.type === 'image') {
+            @let img = asImage(el);
+            <img
+              class="cv-image"
+              [src]="img.url"
+              alt=""
+              draggable="false"
+              [style.filter]="getFilterCss(img.filter)"
+              [style.borderRadius.px]="img.borderRadius"
+              [style.boxShadow]="getElementShadow(img)"
+            />
+          } @else if (el.type === 'shape') {
+            @let sh = asShape(el);
+            @if (sh.shape === 'rectangle') {
+              <div
+                class="cv-shape"
+                [style.background]="sh.fill"
+                [style.border]="sh.strokeWidth + 'px solid ' + sh.stroke"
+                [style.borderRadius.px]="sh.borderRadius"
+              ></div>
+            } @else if (sh.shape === 'circle') {
+              <div
+                class="cv-shape cv-shape--circle"
+                [style.background]="sh.fill"
+                [style.border]="sh.strokeWidth + 'px solid ' + sh.stroke"
+              ></div>
+            } @else if (sh.shape === 'line') {
+              <div class="cv-shape cv-shape--line" [style.background]="sh.fill"></div>
+            } @else if (sh.shape === 'triangle') {
+              <svg class="cv-shape" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <polygon
+                  points="50,5 95,95 5,95"
+                  [attr.fill]="sh.fill"
+                  [attr.stroke]="sh.stroke"
+                  [attr.stroke-width]="sh.strokeWidth"
+                />
+              </svg>
+            }
+          }
+
+          @if (selectedIds().includes(el.id) && !el.locked) {
+            <div class="handle-frame">
+              <span [class]="handleClass('nw')" (mousedown)="onResizeHandleDown($event, 'nw')"></span>
+              <span [class]="handleClass('n')" (mousedown)="onResizeHandleDown($event, 'n')"></span>
+              <span [class]="handleClass('ne')" (mousedown)="onResizeHandleDown($event, 'ne')"></span>
+              <span [class]="handleClass('e')" (mousedown)="onResizeHandleDown($event, 'e')"></span>
+              <span [class]="handleClass('se')" (mousedown)="onResizeHandleDown($event, 'se')"></span>
+              <span [class]="handleClass('s')" (mousedown)="onResizeHandleDown($event, 's')"></span>
+              <span [class]="handleClass('sw')" (mousedown)="onResizeHandleDown($event, 'sw')"></span>
+              <span [class]="handleClass('w')" (mousedown)="onResizeHandleDown($event, 'w')"></span>
+            </div>
+          }
+        </div>
+      }
+
+      @for (line of snapLines(); track $index) {
+        @if (line.orientation === 'v') {
+          <div class="cv-snap cv-snap--v" [style.left.px]="line.position"></div>
+        } @else {
+          <div class="cv-snap cv-snap--h" [style.top.px]="line.position"></div>
+        }
+      }
+
+      @if (marquee(); as m) {
+        <div
+          class="cv-marquee"
+          [style.left.px]="m.x"
+          [style.top.px]="m.y"
+          [style.width.px]="m.w"
+          [style.height.px]="m.h"
+        ></div>
+      }
+    </div>
+  </div>
+
+  <input
+    #imageInput
+    type="file"
+    accept="image/*"
+    style="display: none"
+    (change)="onImageFileChange($event)"
+  />
+</div>

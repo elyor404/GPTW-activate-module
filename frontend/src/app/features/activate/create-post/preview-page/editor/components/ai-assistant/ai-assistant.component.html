@@ -1,0 +1,42 @@
+<div class="ai">
+  <header class="ai__head">
+    <div class="ai__title">
+      <span class="ai__star">✨</span> AI Assistant
+    </div>
+    <button type="button" class="ai__close" (click)="close.emit()" aria-label="Close">×</button>
+  </header>
+
+  <div class="ai__body">
+    @for (msg of messages(); track $index) {
+      <div class="ai__msg" [class.ai__msg--user]="msg.role === 'user'">
+        <div class="ai__bubble">{{ msg.text }}</div>
+        @if (msg.suggestions?.length) {
+          <div class="ai__chips">
+            @for (s of msg.suggestions ?? []; track s.id) {
+              <button type="button" class="ai__chip" (click)="applySuggestion(s)">{{ s.text }}</button>
+            }
+          </div>
+        }
+      </div>
+    }
+    @if (busy()) {
+      <div class="ai__msg">
+        <div class="ai__bubble ai__bubble--loading">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <form class="ai__input" (submit)="$event.preventDefault(); onSubmit()">
+    <textarea
+      class="ai__textarea"
+      placeholder="Ask AI… e.g. ‘Suggest 3 captions’"
+      rows="2"
+      [value]="inputValue()"
+      (input)="onInput($any($event.target).value)"
+      (keydown)="onKeyDown($event)"
+    ></textarea>
+    <button type="submit" class="ai__send" [disabled]="!canSend()">Send</button>
+  </form>
+</div>
