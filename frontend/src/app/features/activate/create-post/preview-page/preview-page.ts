@@ -62,6 +62,7 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('headerCenter', { static: true }) headerCenter!: TemplateRef<unknown>;
   @ViewChild('headerRight', { static: true }) headerRight!: TemplateRef<unknown>;
   @ViewChild(CaptionEditorComponent) caption?: CaptionEditorComponent;
+  @ViewChild(EditorCanvasComponent) canvas?: EditorCanvasComponent;
 
   protected readonly store = inject(EditorStore);
   protected readonly layoutUi = inject(LayoutUiService);
@@ -359,14 +360,14 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.router.navigate(['/activate/social-posts/create-post']);
   }
 
-  protected saveDraft(): void {
+  protected async saveDraft(): Promise<void> {
     try {
       const state = this.store.serialize();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch {
       /* ignore */
     }
-    this.addPostToDashboard('draft');
+    await this.addPostToDashboard('draft');
     this.flash('Draft saved!');
     setTimeout(() => {
       this.postPreviewService.clearData();
@@ -378,9 +379,9 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.approveOpen.set(true);
   }
 
-  protected onApproveConfirmed(): void {
+  protected async onApproveConfirmed(): Promise<void> {
     this.approveOpen.set(false);
-    this.addPostToDashboard('pending');
+    await this.addPostToDashboard('pending');
     this.flash('Post sent for approval!');
     setTimeout(() => {
       this.postPreviewService.clearData();
@@ -392,9 +393,9 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.publishOpen.set(true);
   }
 
-  protected onPublishConfirmed(payload: PublishPayload): void {
+  protected async onPublishConfirmed(payload: PublishPayload): Promise<void> {
     this.publishOpen.set(false);
-    this.addPostToDashboard('published');
+    await this.addPostToDashboard('published');
     const where = payload.platforms.join(', ');
     const when = payload.publishNow ? 'now' : `at ${payload.scheduledAt}`;
     this.flash(`Published to ${where} ${when}!`);
@@ -409,11 +410,13 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 900);
   }
 
-  private addPostToDashboard(status: PostStatus): void {
+  private async addPostToDashboard(status: PostStatus): Promise<void> {
     const data = this.postPreviewService.getCurrentData();
+    const capturedImage = await this.canvas?.captureImage();
+    
     this.socialPostsService.addPost({
       status,
-      previewImage: data.templateUrl ?? '/posts/post1.svg',
+      previewImage: capturedImage || data.templateUrl || '/posts/post1.svg',
       description: data.description || 'Untitled post',
       postType: (data.postType as PostType | null) ?? 'image',
       size: (data.size as PostSize | null) ?? 'square',

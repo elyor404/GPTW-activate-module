@@ -79,11 +79,11 @@ function buildSeedPost(spec: SeedSpec, id: number): Post {
   };
 }
 
+const STORAGE_KEY = 'gptw.social_posts';
+
 @Injectable({ providedIn: 'root' })
 export class SocialPostsService {
-  private readonly _posts = signal<Post[]>(
-    SEED_SPECS.map((spec, idx) => buildSeedPost(spec, idx + 1))
-  );
+  private readonly _posts = signal<Post[]>(this.loadFromStorage());
 
   private readonly _recommendations = signal<RecommendedPost[]>([
     {
@@ -120,15 +120,42 @@ export class SocialPostsService {
   readonly approvedPosts = computed(() => this._posts().filter((p) => p.status === 'approved'));
   readonly publishedPosts = computed(() => this._posts().filter((p) => p.status === 'published'));
 
+  private loadFromStorage(): Post[] {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        return JSON.parse(raw);
+      }
+    } catch (e) {
+      console.warn('Failed to load posts from storage', e);
+    }
+    // Fallback to seeds if empty
+    return SEED_SPECS.map((spec, idx) => buildSeedPost(spec, idx + 1));
+  }
+
+  private saveToStorage(posts: Post[]): void {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+    } catch (e) {
+      console.warn('Failed to save posts to storage', e);
+    }
+  }
+
   addPost(post: Omit<Post, 'id'>): void {
     const nextId = Math.max(0, ...this._posts().map((p) => p.id)) + 1;
-    this._posts.update((posts) => [{ id: nextId, ...post }, ...posts]);
+    this._posts.update((posts) => {
+      const updated = [{ id: nextId, ...post }, ...posts];
+      this.saveToStorage(updated);
+      return updated;
+    });
   }
 
   updatePostStatus(id: number, status: PostStatus): void {
-    this._posts.update((posts) =>
-      posts.map((p) => (p.id === id ? { ...p, status } : p))
-    );
+    this._posts.update((posts) => {
+      const updated = posts.map((p) => (p.id === id ? { ...p, status } : p));
+      this.saveToStorage(updated);
+      return updated;
+    });
   }
 
   getPostById(id: number): Post | undefined {
@@ -154,7 +181,11 @@ export class SocialPostsService {
       uploadedFiles: []
     };
 
-    this._posts.update((posts) => [draft, ...posts]);
+    this._posts.update((posts) => {
+      const updated = [draft, ...posts];
+      this.saveToStorage(updated);
+      return updated;
+    });
     this._recommendations.update((recs) => recs.filter((r) => r.id !== recommendationId));
   }
 }

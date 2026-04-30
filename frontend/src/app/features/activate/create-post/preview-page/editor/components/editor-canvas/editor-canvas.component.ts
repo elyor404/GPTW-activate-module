@@ -461,4 +461,35 @@ export class EditorCanvasComponent {
   protected handleClass(handle: ResizeHandle): string {
     return `handle handle-${handle}`;
   }
+
+  async captureImage(): Promise<string> {
+    const stage = this.stageRef?.nativeElement;
+    if (!stage) return '';
+
+    // Dynamically import html2canvas to avoid any SSR/initial load issues
+    const html2canvas = (await import('html2canvas')).default;
+
+    try {
+      // Temporarily clear selection to avoid handles/borders in the screenshot
+      const currentSelection = this.store.selectedIds();
+      this.store.clearSelection();
+
+      const canvas = await html2canvas(stage, {
+        useCORS: true,
+        backgroundColor: null, // Preserve transparency if any
+        scale: 2, // Higher quality
+        logging: false
+      });
+
+      // Restore selection
+      if (currentSelection.length > 0) {
+        this.store.setSelection(currentSelection);
+      }
+
+      return canvas.toDataURL('image/png');
+    } catch (err) {
+      console.error('Failed to capture canvas:', err);
+      return '';
+    }
+  }
 }
