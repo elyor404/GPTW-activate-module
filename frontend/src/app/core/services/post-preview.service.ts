@@ -52,6 +52,17 @@ export class PostPreviewService {
   private previewDataSubject = new BehaviorSubject<PostPreviewData>(INITIAL_DATA);
   private formStateSubject = new BehaviorSubject<PostFormState>(INITIAL_FORM_STATE);
 
+  /** True when the user opened the editor by clicking "Edit" on an existing dashboard post. */
+  private _editMode = false;
+
+  get editMode(): boolean {
+    return this._editMode;
+  }
+
+  setEditMode(value: boolean): void {
+    this._editMode = value;
+  }
+
   setPreviewData(data: PostPreviewData): void {
     this.previewDataSubject.next(data);
   }
@@ -87,5 +98,6 @@ export class PostPreviewService {
   clearData(): void {
     this.previewDataSubject.next(INITIAL_DATA);
     this.formStateSubject.next(INITIAL_FORM_STATE);
+    this._editMode = false;
   }
 }

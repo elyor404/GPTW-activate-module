@@ -120,6 +120,11 @@ export class SocialPostsService {
   readonly approvedPosts = computed(() => this._posts().filter((p) => p.status === 'approved'));
   readonly publishedPosts = computed(() => this._posts().filter((p) => p.status === 'published'));
 
+  addPost(post: Omit<Post, 'id'>): void {
+    const nextId = Math.max(0, ...this._posts().map((p) => p.id)) + 1;
+    this._posts.update((posts) => [{ id: nextId, ...post }, ...posts]);
+  }
+
   updatePostStatus(id: number, status: PostStatus): void {
     this._posts.update((posts) =>
       posts.map((p) => (p.id === id ? { ...p, status } : p))

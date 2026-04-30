@@ -19,6 +19,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { PostPreviewService, PostPreviewData } from '../../../../core/services/post-preview.service';
 import { HeaderContextService } from '../../../../core/services/header-context.service';
 import { LayoutUiService } from '../../../../core/services/layout-ui.service';
+import { SocialPostsService, PostStatus, PostType, PostSize } from '../../../../core/services/social-posts.service';
 import { EditorStore } from './editor/editor-store.service';
 import { ToolName, ShapeType, CanvasState } from './editor/editor-types';
 import { EditorCanvasComponent } from './editor/components/editor-canvas/editor-canvas.component';
@@ -67,6 +68,7 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly router = inject(Router);
   private readonly postPreviewService = inject(PostPreviewService);
   private readonly headerContextService = inject(HeaderContextService);
+  private readonly socialPostsService = inject(SocialPostsService);
 
   protected readonly previewData = signal<PostPreviewData | null>(null);
   protected readonly projectName = 'Project Name';
@@ -159,6 +161,9 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit(): void {
     this.updateMobileGate();
+    // Always clear any stale draft so it can never bleed into a fresh preview session.
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+
     this.postPreviewService
       .getPreviewData()
       .pipe(takeUntil(this.destroy$))
@@ -166,9 +171,10 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
         this.previewData.set(data);
         if (!this.initialised) {
           this.initialised = true;
-          if (!this.tryLoadDraft()) {
-            this.bootstrapFromPreview(data);
-          }
+          // Always build the canvas from the current form selections.
+          // We never restore from localStorage here — that global key is
+          // unrelated to whichever post (new or edited) is being previewed.
+          this.bootstrapFromPreview(data);
         }
       });
   }
@@ -195,9 +201,10 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   /**
-   * If there's a previously saved draft for this preview, load it.
-   * Returns true when a draft was applied.
+   * Kept for reference but no longer called on init.
+   * Could be wired to an explicit "Restore last draft" action in future.
    */
+
   private tryLoadDraft(): boolean {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -356,10 +363,15 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
     try {
       const state = this.store.serialize();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      this.flash('Draft saved');
     } catch {
-      this.flash('Could not save draft');
+      /* ignore */
     }
+    this.addPostToDashboard('draft');
+    this.flash('Draft saved!');
+    setTimeout(() => {
+      this.postPreviewService.clearData();
+      this.router.navigate(['/activate/social-posts']);
+    }, 900);
   }
 
   protected openApprove(): void {
@@ -368,7 +380,12 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   protected onApproveConfirmed(): void {
     this.approveOpen.set(false);
-    this.flash('Post approved');
+    this.addPostToDashboard('pending');
+    this.flash('Post sent for approval!');
+    setTimeout(() => {
+      this.postPreviewService.clearData();
+      this.router.navigate(['/activate/social-posts']);
+    }, 900);
   }
 
   protected openPublish(): void {
@@ -377,9 +394,10 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   protected onPublishConfirmed(payload: PublishPayload): void {
     this.publishOpen.set(false);
+    this.addPostToDashboard('published');
     const where = payload.platforms.join(', ');
     const when = payload.publishNow ? 'now' : `at ${payload.scheduledAt}`;
-    this.flash(`Publishing to ${where} ${when}…`);
+    this.flash(`Published to ${where} ${when}!`);
     setTimeout(() => {
       try {
         localStorage.removeItem(STORAGE_KEY);
@@ -389,6 +407,22 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
       this.postPreviewService.clearData();
       this.router.navigate(['/activate/social-posts']);
     }, 900);
+  }
+
+  private addPostToDashboard(status: PostStatus): void {
+    const data = this.postPreviewService.getCurrentData();
+    this.socialPostsService.addPost({
+      status,
+      previewImage: data.templateUrl ?? '/posts/post1.svg',
+      description: data.description || 'Untitled post',
+      postType: (data.postType as PostType | null) ?? 'image',
+      size: (data.size as PostSize | null) ?? 'square',
+      templateId: null,
+      colour: data.colour,
+      badgeId: data.badgeUrl ? '1' : null,
+      logoId: data.logoUrl ? '1' : null,
+      uploadedFiles: data.uploadedFiles ?? []
+    });
   }
 
   private flash(message: string): void {

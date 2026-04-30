@@ -187,7 +187,9 @@ export class CreatePostPageComponent implements OnInit, OnDestroy {
   }
 
   get isFormValid(): boolean {
-    return !!this.selectedPostType && !!this.selectedSize && !!this.selectedTemplate;
+    // Minimum required: post type and canvas size.
+    // Template, colour, badge, logo and uploaded files are all optional.
+    return !!this.selectedPostType && !!this.selectedSize;
   }
 
   preview(): void {

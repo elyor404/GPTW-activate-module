@@ -206,11 +206,12 @@ app-header .back-btn {
   &:hover { background: var(--surface-muted); }
 }
 
-app-header .project-name {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text);
-  margin-left: 0.5rem;
+app-header .header-logo {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+  margin-left: 0.75rem;
+  display: block;
 }
 
 app-header .action-btn {

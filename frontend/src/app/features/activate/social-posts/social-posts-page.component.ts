@@ -26,6 +26,7 @@ export class SocialPostsPageComponent {
 
   createNewPost(): void {
     this.postPreviewService.clearData();
+    this.postPreviewService.setEditMode(false);
     this.router.navigate(['/activate/social-posts/create-post']);
   }
 
@@ -47,6 +48,7 @@ export class SocialPostsPageComponent {
   edit(post: Post): void {
     this.openMenuId.set(null);
     this.postPreviewService.clearData();
+    this.postPreviewService.setEditMode(true);
     this.postPreviewService.setFormState({
       postDescription: post.description,
       selectedPostType: post.postType,
