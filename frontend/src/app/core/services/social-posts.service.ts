@@ -22,6 +22,7 @@ export interface Post {
   badgeId: string | null;
   logoId: string | null;
   uploadedFiles: UploadedFile[];
+  canvasState?: any;
 }
 
 export interface RecommendedPost {
@@ -150,12 +151,16 @@ export class SocialPostsService {
     });
   }
 
-  updatePostStatus(id: number, status: PostStatus): void {
+  updatePost(id: number, patch: Partial<Post>): void {
     this._posts.update((posts) => {
-      const updated = posts.map((p) => (p.id === id ? { ...p, status } : p));
+      const updated = posts.map((p) => (p.id === id ? { ...p, ...patch } : p));
       this.saveToStorage(updated);
       return updated;
     });
+  }
+
+  updatePostStatus(id: number, status: PostStatus): void {
+    this.updatePost(id, { status });
   }
 
   getPostById(id: number): Post | undefined {

@@ -172,10 +172,11 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
         this.previewData.set(data);
         if (!this.initialised) {
           this.initialised = true;
-          // Always build the canvas from the current form selections.
-          // We never restore from localStorage here — that global key is
-          // unrelated to whichever post (new or edited) is being previewed.
-          this.bootstrapFromPreview(data);
+          if (data.canvasState) {
+            this.store.loadState(data.canvasState);
+          } else {
+            this.bootstrapFromPreview(data);
+          }
         }
       });
   }
@@ -278,17 +279,6 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
         height: width * 0.1
       });
     }
-
-    this.store.addText({
-      content: 'Headline goes here',
-      x: width * 0.08,
-      y: height * 0.7,
-      width: width * 0.7,
-      height: 80,
-      fontSize: Math.round(width * 0.05),
-      color: data.colour && this.isDark(data.colour) ? '#FFFFFF' : '#1a1d1f',
-      name: 'Headline'
-    });
 
     if (data.description) {
       this.store.setCaption(data.description);
@@ -413,19 +403,27 @@ export class PreviewPageComponent implements OnInit, OnDestroy, AfterViewInit {
   private async addPostToDashboard(status: PostStatus): Promise<void> {
     const data = this.postPreviewService.getCurrentData();
     const capturedImage = await this.canvas?.captureImage();
+    const canvasState = this.store.serialize();
     
-    this.socialPostsService.addPost({
+    const postData = {
       status,
       previewImage: capturedImage || data.templateUrl || '/posts/post1.svg',
       description: data.description || 'Untitled post',
       postType: (data.postType as PostType | null) ?? 'image',
       size: (data.size as PostSize | null) ?? 'square',
-      templateId: null,
+      templateId: null as string | null,
       colour: data.colour,
       badgeId: data.badgeUrl ? '1' : null,
       logoId: data.logoUrl ? '1' : null,
-      uploadedFiles: data.uploadedFiles ?? []
-    });
+      uploadedFiles: data.uploadedFiles ?? [],
+      canvasState
+    };
+
+    if (this.postPreviewService.editMode && this.postPreviewService.postId) {
+      this.socialPostsService.updatePost(this.postPreviewService.postId, postData);
+    } else {
+      this.socialPostsService.addPost(postData);
+    }
   }
 
   private flash(message: string): void {

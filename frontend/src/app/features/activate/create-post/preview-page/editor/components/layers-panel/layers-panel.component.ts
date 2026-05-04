@@ -53,6 +53,11 @@ export class LayersPanelComponent {
     this.editingNameId.set(null);
   }
 
+  deleteLayer(layer: CanvasElement, event: MouseEvent): void {
+    event.stopPropagation();
+    this.store.deleteElement(layer.id);
+  }
+
   onDragStart(layer: CanvasElement, event: DragEvent): void {
     this.dragId = layer.id;
     event.dataTransfer?.setData('text/plain', layer.id);

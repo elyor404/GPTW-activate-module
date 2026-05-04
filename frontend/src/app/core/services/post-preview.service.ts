@@ -10,6 +10,7 @@ export interface PostPreviewData {
   badgeUrl: string | null;
   logoUrl: string | null;
   uploadedFiles: { id: string; url: string; type: 'image' | 'video' }[];
+  canvasState?: any;
 }
 
 export interface PostFormState {
@@ -21,6 +22,7 @@ export interface PostFormState {
   selectedBadge: string | null;
   selectedLogo: string | null;
   uploadedFiles: { id: string; url: string; type: 'image' | 'video' }[];
+  canvasState?: any;
 }
 
 const INITIAL_DATA: PostPreviewData = {
@@ -54,6 +56,7 @@ export class PostPreviewService {
 
   /** True when the user opened the editor by clicking "Edit" on an existing dashboard post. */
   private _editMode = false;
+  private _postId?: number;
 
   get editMode(): boolean {
     return this._editMode;
@@ -61,6 +64,14 @@ export class PostPreviewService {
 
   setEditMode(value: boolean): void {
     this._editMode = value;
+  }
+
+  get postId(): number | undefined {
+    return this._postId;
+  }
+
+  setPostId(id: number | undefined): void {
+    this._postId = id;
   }
 
   setPreviewData(data: PostPreviewData): void {
@@ -99,5 +110,6 @@ export class PostPreviewService {
     this.previewDataSubject.next(INITIAL_DATA);
     this.formStateSubject.next(INITIAL_FORM_STATE);
     this._editMode = false;
+    this._postId = undefined;
   }
 }

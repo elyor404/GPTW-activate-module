@@ -41,6 +41,7 @@ export class CreatePostPageComponent implements OnInit, OnDestroy {
   logos: Logo[] = [];
 
   uploadedFiles: { id: string; url: string; type: 'image' | 'video' }[] = [];
+  canvasState: any = null;
 
   constructor(
     private router: Router,
@@ -71,6 +72,7 @@ export class CreatePostPageComponent implements OnInit, OnDestroy {
       this.selectedBadge = state.selectedBadge;
       this.selectedLogo = state.selectedLogo;
       this.uploadedFiles = [...state.uploadedFiles];
+      this.canvasState = state.canvasState;
     }
   }
 
@@ -83,7 +85,8 @@ export class CreatePostPageComponent implements OnInit, OnDestroy {
       selectedColour: this.selectedColour,
       selectedBadge: this.selectedBadge,
       selectedLogo: this.selectedLogo,
-      uploadedFiles: [...this.uploadedFiles]
+      uploadedFiles: [...this.uploadedFiles],
+      canvasState: this.canvasState
     });
   }
 
@@ -208,7 +211,8 @@ export class CreatePostPageComponent implements OnInit, OnDestroy {
       colour: this.selectedColour,
       badgeUrl: this.selectedBadge ? '/badges/gptw-certified-2025.png' : null,
       logoUrl: selectedLogoObj?.url || null,
-      uploadedFiles: this.uploadedFiles
+      uploadedFiles: this.uploadedFiles,
+      canvasState: this.canvasState
     });
     
     this.router.navigate(['/activate/social-posts/create-post/preview']);

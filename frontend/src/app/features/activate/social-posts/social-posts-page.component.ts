@@ -49,6 +49,7 @@ export class SocialPostsPageComponent {
     this.openMenuId.set(null);
     this.postPreviewService.clearData();
     this.postPreviewService.setEditMode(true);
+    this.postPreviewService.setPostId(post.id);
     this.postPreviewService.setFormState({
       postDescription: post.description,
       selectedPostType: post.postType,
@@ -57,7 +58,8 @@ export class SocialPostsPageComponent {
       selectedColour: post.colour,
       selectedBadge: post.badgeId,
       selectedLogo: post.logoId,
-      uploadedFiles: post.uploadedFiles
+      uploadedFiles: post.uploadedFiles,
+      canvasState: post.canvasState
     });
     this.router.navigate(['/activate/social-posts/create-post']);
   }

@@ -129,4 +129,9 @@
   &:hover { background: rgb(0 0 0 / 6%); color: var(--text); }
   &.is-off { color: var(--text-placeholder); }
   &.is-on { color: var(--accent); }
+
+  &--del:hover {
+    color: #ef4444;
+    background: #fef2f2;
+  }
 }
