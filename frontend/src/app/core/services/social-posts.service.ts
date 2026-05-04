@@ -163,6 +163,14 @@ export class SocialPostsService {
     this.updatePost(id, { status });
   }
 
+  /**
+   * Removes the post from memory only — intentionally not persisted to localStorage,
+   * so a refresh restores the post (prototype behaviour).
+   */
+  deletePost(id: number): void {
+    this._posts.update((posts) => posts.filter((p) => p.id !== id));
+  }
+
   getPostById(id: number): Post | undefined {
     return this._posts().find((p) => p.id === id);
   }
