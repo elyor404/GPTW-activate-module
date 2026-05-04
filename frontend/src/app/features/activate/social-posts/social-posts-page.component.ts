@@ -69,6 +69,11 @@ export class SocialPostsPageComponent {
     this.socialPosts.updatePostStatus(post.id, 'approved');
   }
 
+  delete(post: Post): void {
+    this.openMenuId.set(null);
+    this.socialPosts.deletePost(post.id);
+  }
+
   preview(post: Post): void {
     this.openMenuId.set(null);
     this.previewPost.set(post);

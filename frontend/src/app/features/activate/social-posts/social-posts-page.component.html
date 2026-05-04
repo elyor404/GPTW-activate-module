@@ -35,6 +35,7 @@
               @if (openMenuId() === post.id) {
                 <div class="post-card__menu" (click)="$event.stopPropagation()">
                   <button class="post-card__menu-item" type="button" (click)="edit(post)">Edit</button>
+                  <button class="post-card__menu-item" type="button" (click)="delete(post)">Delete</button>
                 </div>
               }
             </div>
