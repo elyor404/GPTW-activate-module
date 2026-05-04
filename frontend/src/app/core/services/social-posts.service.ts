@@ -40,29 +40,73 @@ interface SeedSpec {
   description: string;
   size: PostSize;
   colour: string;
-  templateId: string;
 }
 
 const SEED_SPECS: SeedSpec[] = [
-  // Draft (5)
-  { status: 'draft', previewImage: '/posts/post1.svg', description: 'Excited to be recognized as a Best Workplace 2026!', size: 'square', colour: '#E8472A', templateId: '1' },
-  { status: 'draft', previewImage: '/posts/Facebook post - 1.svg', description: 'Top 5% Trust Index globally — thank you to our team.', size: 'square', colour: '#1A3C4D', templateId: '2' },
-  { status: 'draft', previewImage: '/posts/Instagram story - 1.svg', description: 'Celebrating our certified culture.', size: 'story', colour: '#1E2A35', templateId: '3' },
-  { status: 'draft', previewImage: '/posts/Facebook post - 2.svg', description: 'Our people make us a Best Workplace.', size: 'square', colour: '#0F3D45', templateId: '1' },
+  // Draft
+  { status: 'draft', previewImage: '/posts/post1.svg', description: 'Excited to be recognized as a Best Workplace 2026!', size: 'square', colour: '#E8472A' },
+  { status: 'draft', previewImage: '/posts/Facebook post - 1.svg', description: 'Top 5% Trust Index globally — thank you to our team.', size: 'landscape', colour: '#FF6A47' },
+  { status: 'draft', previewImage: '/posts/Instagram story - 1.svg', description: 'Celebrating our certified culture.', size: 'story', colour: '#FF6A47' },
+  { status: 'draft', previewImage: '/posts/Facebook post - 2.svg', description: 'Our people make us a Best Workplace.', size: 'landscape', colour: '#004051' },
 
-  // Pending Approval (5)
-  { status: 'pending', previewImage: '/posts/Facebook post - 2.svg', description: 'Best for Women 2026 — celebrating our team.', size: 'square', colour: '#E8472A', templateId: '3' },
-  { status: 'pending', previewImage: '/posts/1.svg', description: 'Why our employees love coming to work.', size: 'landscape', colour: '#0F3D45', templateId: '2' },
+  // Pending Approval
+  { status: 'pending', previewImage: '/posts/Facebook post - 2.svg', description: 'Best for Women 2026 — celebrating our team.', size: 'landscape', colour: '#004051' },
+  { status: 'pending', previewImage: '/posts/1.svg', description: 'Why our employees love coming to work.', size: 'square', colour: '#E8472A' },
 
-  // Approved (5)
-  { status: 'approved', previewImage: '/posts/Instagram story - 1.svg', description: 'Best Workplace Asia 2026 — thank you!', size: 'story', colour: '#1A3C4D', templateId: '3' },
-  { status: 'approved', previewImage: '/posts/Facebook post - 1.svg', description: '98% of our employees are proud to work here.', size: 'square', colour: '#E8472A', templateId: '4' },
-  { status: 'approved', previewImage: '/posts/Facebook post - 2.svg', description: 'Best for Diversity 2026.', size: 'square', colour: '#0F3D45', templateId: '3' },
+  // Approved
+  { status: 'approved', previewImage: '/posts/Instagram story - 1.svg', description: 'Best Workplace Asia 2026 — thank you!', size: 'story', colour: '#FF6A47' },
+  { status: 'approved', previewImage: '/posts/Facebook post - 1.svg', description: '98% of our employees are proud to work here.', size: 'landscape', colour: '#FF6A47' },
+  { status: 'approved', previewImage: '/posts/Facebook post - 2.svg', description: 'Best for Diversity 2026.', size: 'landscape', colour: '#004051' },
 
-  // Published (5)
-  { status: 'published', previewImage: '/posts/Instagram story - 2.svg', description: 'Best Workplace 2026 — share the news!', size: 'story', colour: '#1E2A35', templateId: '1' },
-  { status: 'published', previewImage: '/posts/Facebook post - 2.svg', description: 'Thank you to every teammate who made this possible.', size: 'square', colour: '#0F3D45', templateId: '1' }
+  // Published
+  { status: 'published', previewImage: '/posts/Instagram story - 2.svg', description: 'Best Workplace 2026 — share the news!', size: 'story', colour: '#FF6A47' },
+  { status: 'published', previewImage: '/posts/Facebook post - 2.svg', description: 'Thank you to every teammate who made this possible.', size: 'landscape', colour: '#004051' }
 ];
+
+function buildSeedCanvasState(spec: SeedSpec): any {
+  let width = 1080;
+  let height = 1080;
+  if (spec.size === 'story') {
+    width = 1080;
+    height = 1920;
+  } else if (spec.size === 'landscape') {
+    width = 1600;
+    height = 900;
+  }
+
+  return {
+    version: 1,
+    canvasSize: { width, height },
+    background: spec.colour,
+    backgroundImage: null,
+    showGrid: false,
+    showRulers: false,
+    caption: spec.description,
+    elements: [
+      {
+        id: `seed-image-${spec.previewImage}`,
+        type: 'image',
+        name: 'Post image',
+        url: spec.previewImage,
+        x: 0,
+        y: 0,
+        width,
+        height,
+        rotation: 0,
+        opacity: 1,
+        visible: true,
+        locked: false,
+        zIndex: 0,
+        filter: 'none',
+        borderRadius: 0,
+        shadow: false,
+        shadowBlur: 0,
+        shadowOffsetX: 0,
+        shadowOffsetY: 0
+      }
+    ]
+  };
+}
 
 function buildSeedPost(spec: SeedSpec, id: number): Post {
   return {
@@ -72,15 +116,16 @@ function buildSeedPost(spec: SeedSpec, id: number): Post {
     description: spec.description,
     postType: 'image',
     size: spec.size,
-    templateId: spec.templateId,
+    templateId: null,
     colour: spec.colour,
     badgeId: '1',
     logoId: null,
-    uploadedFiles: []
+    uploadedFiles: [],
+    canvasState: buildSeedCanvasState(spec)
   };
 }
 
-const STORAGE_KEY = 'gptw.social_posts';
+const STORAGE_KEY = 'gptw.social_posts_v3';
 
 @Injectable({ providedIn: 'root' })
 export class SocialPostsService {
