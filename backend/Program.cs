@@ -79,6 +79,49 @@ app.MapPost("/api/images/generate", async (
     return Results.Ok(result);
 });
 
+app.MapPost("/api/images/compare", async (
+    CompareImagesRequest request,
+    OpenAiImageService openAiService,
+    NanoBananaImageService nanoBananaService,
+    CancellationToken ct) =>
+{
+    if (string.IsNullOrWhiteSpace(request.Prompt))
+    {
+        return Results.BadRequest("Prompt is required.");
+    }
+
+    var openAiTask = openAiService.GenerateImageAsync(
+        new GenerateImageRequest(
+            Provider: ImageProvider.OpenAI,
+            Prompt: request.Prompt,
+            Size: request.Size,
+            Quality: request.Quality,
+            Model: "gpt-image-2"
+        ),
+        ct);
+
+    var nanoBananaTask = nanoBananaService.GenerateImageAsync(
+        new GenerateImageRequest(
+            Provider: ImageProvider.NanoBanana,
+            Prompt: request.Prompt,
+            Size: request.Size,
+            Quality: request.Quality,
+            Model: "gpt-image-2"
+        ),
+        ct);
+
+    await Task.WhenAll(openAiTask, nanoBananaTask);
+
+    var response = new CompareImagesResponse(
+        Results:
+        [
+            await openAiTask,
+            await nanoBananaTask
+        ]);
+
+    return Results.Ok(response);
+});
+
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
     .WithName("Health")
     .WithDescription("Health check endpoint");

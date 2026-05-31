@@ -19,7 +19,7 @@ public sealed class OpenAiImageService : IImageGenerationService
     {
         var payload = new
         {
-            model = request.Model,
+            model = request.Model ?? "gpt-image-2",
             prompt = request.Prompt,
             n = request.N,
             size = request.Size,
