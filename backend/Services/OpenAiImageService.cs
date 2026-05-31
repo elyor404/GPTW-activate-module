@@ -1,6 +1,7 @@
+using GPTW.Plus.Api.Models;
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using GPTW.Plus.Api.Models;
 
 namespace GPTW.Plus.Api.Services;
 
@@ -8,11 +9,13 @@ public sealed class OpenAiImageService : IImageGenerationService
 {
     private readonly HttpClient httpClient;
     private readonly IWebHostEnvironment env;
+    private readonly GenerationHistoryStore history;
 
-    public OpenAiImageService(HttpClient httpClient, IWebHostEnvironment env)
+    public OpenAiImageService(HttpClient httpClient, IWebHostEnvironment env, GenerationHistoryStore history)
     {
         this.httpClient = httpClient;
         this.env = env;
+        this.history = history;
     }
 
     public async Task<GenerateImageResponse> GenerateImageAsync(GenerateImageRequest request, CancellationToken ct)
@@ -55,11 +58,23 @@ public sealed class OpenAiImageService : IImageGenerationService
         var fileId = Guid.NewGuid().ToString("N");
         var fileName = $"{fileId}.png";
         var folder = Path.Combine(env.WebRootPath ?? "wwwroot", "generated");
+        var stopwatch = Stopwatch.StartNew();
 
         Directory.CreateDirectory(folder);
 
         var fullPath = Path.Combine(folder, fileName);
         await File.WriteAllBytesAsync(fullPath, bytes, ct);
+
+        history.Add(new GenerationRecord(
+        Id: fileId,
+        Prompt: request.Prompt,
+        Provider: "OpenAI",
+        Model: request.Model ?? "gpt-image-2",
+        GenerationTimeMs: stopwatch.ElapsedMilliseconds,
+        EstimatedCost: 0.04m,
+        ImageUrl: $"https://localhost:7210/generated/{fileName}",
+        CreatedAt: DateTime.UtcNow
+        ));
 
         return new GenerateImageResponse(
             ImageId: fileId,

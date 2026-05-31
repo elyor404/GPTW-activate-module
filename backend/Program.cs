@@ -49,6 +49,7 @@ builder.Services.AddHttpClient<OpenAiImageService>(client =>
         new AuthenticationHeaderValue("Bearer", apiKey);
 });
 builder.Services.AddScoped<NanoBananaImageService>();
+builder.Services.AddSingleton<GenerationHistoryStore>();
 
 var app = builder.Build();
 
@@ -58,6 +59,14 @@ app.UseSwaggerUI();
 app.UseCors("AllowFrontend");
 app.UseStaticFiles();
 
+
+
+
+
+
+
+
+//-------------------------- Minimum API ---------------------------------------
 app.MapPost("/api/images/generate", async (
     GenerateImageRequest request,
     OpenAiImageService openAiService,
@@ -122,8 +131,19 @@ app.MapPost("/api/images/compare", async (
     return Results.Ok(response);
 });
 
+app.MapGet("/api/images/history", (GenerationHistoryStore store) =>
+{
+    return Results.Ok(store.GetAll());
+});
+
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
     .WithName("Health")
     .WithDescription("Health check endpoint");
+
+//----------------------- END Minimum API ---------------------------------------
+
+
+
+
 
 app.Run();
