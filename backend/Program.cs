@@ -32,8 +32,23 @@ builder.Services.AddHttpClient<OpenAiImageService>(client =>
         new AuthenticationHeaderValue("Bearer", apiKey);
 });
 
-builder.Services.AddScoped<IImageGenerationService>(sp =>
-    sp.GetRequiredService<OpenAiImageService>());
+builder.Services.AddHttpClient<OpenAiImageService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.openai.com/v1/");
+    client.Timeout = TimeSpan.FromMinutes(5);
+
+    var apiKey = builder.Configuration["OpenAI:ApiKey"];
+
+    if (string.IsNullOrWhiteSpace(apiKey))
+    {
+        throw new InvalidOperationException(
+            "OpenAI:ApiKey is not configured in appsettings.json");
+    }
+
+    client.DefaultRequestHeaders.Authorization =
+        new AuthenticationHeaderValue("Bearer", apiKey);
+});
+builder.Services.AddScoped<NanoBananaImageService>();
 
 var app = builder.Build();
 
@@ -43,18 +58,26 @@ app.UseSwaggerUI();
 app.UseCors("AllowFrontend");
 app.UseStaticFiles();
 
-app.MapPost("/api/images/openai/generate", async (
+app.MapPost("/api/images/generate", async (
     GenerateImageRequest request,
-    IImageGenerationService service,
+    OpenAiImageService openAiService,
+    NanoBananaImageService nanoBananaService,
     CancellationToken ct) =>
-            {
-                if (string.IsNullOrWhiteSpace(request.Prompt))
-                    return Results.BadRequest("Prompt is required.");
+{
+    if (string.IsNullOrWhiteSpace(request.Prompt))
+        return Results.BadRequest("Prompt is required.");
 
-                var result = await service.GenerateImageAsync(request, ct);
-                return Results.Ok(result);
-            })
-.WithName("GenerateOpenAiImage");
+    IImageGenerationService service = request.Provider switch
+    {
+        ImageProvider.OpenAI => openAiService,
+        ImageProvider.NanoBanana => nanoBananaService,
+        _ => throw new InvalidOperationException("Unsupported provider")
+    };
+
+    var result = await service.GenerateImageAsync(request, ct);
+
+    return Results.Ok(result);
+});
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
     .WithName("Health")

@@ -63,6 +63,7 @@ public sealed class OpenAiImageService : IImageGenerationService
 
         return new GenerateImageResponse(
             ImageId: fileId,
+            Provider: "OpenAI",
             Model: request.Model ?? "gpt-image-2",
             Prompt: request.Prompt,
             FileName: fileName,
