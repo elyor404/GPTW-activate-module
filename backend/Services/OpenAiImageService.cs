@@ -23,8 +23,7 @@ public sealed class OpenAiImageService : IImageGenerationService
             prompt = request.Prompt,
             n = request.N,
             size = request.Size,
-            quality = request.Quality,
-            response_format = "b64_json"
+            quality = request.Quality
         };
 
         using var content = new StringContent(
@@ -67,8 +66,7 @@ public sealed class OpenAiImageService : IImageGenerationService
             Model: request.Model ?? "gpt-image-2",
             Prompt: request.Prompt,
             FileName: fileName,
-            PublicUrl: $"/generated/{fileName}",
-            Base64: firstImage.B64Json
+            PublicUrl: $"https://localhost:7210/generated/{fileName}"
         );
     }
 }

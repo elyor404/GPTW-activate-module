@@ -5,5 +5,4 @@ public sealed record GenerateImageResponse(
     string Model,
     string Prompt,
     string FileName,
-    string PublicUrl,
-    string Base64);
+    string PublicUrl);

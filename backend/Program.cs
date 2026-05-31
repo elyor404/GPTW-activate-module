@@ -20,7 +20,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddHttpClient<OpenAiImageService>(client =>
 {
     client.BaseAddress = new Uri("https://api.openai.com/v1/");
-    client.Timeout = TimeSpan.FromMinutes(5);
+    client.Timeout = TimeSpan.FromMinutes(15);
 
     var apiKey = builder.Configuration["OpenAI:ApiKey"];
     if (string.IsNullOrWhiteSpace(apiKey))
