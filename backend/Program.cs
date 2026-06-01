@@ -50,6 +50,22 @@ builder.Services.AddHttpClient<OpenAiImageService>(client =>
 });
 builder.Services.AddScoped<NanoBananaImageService>();
 builder.Services.AddSingleton<GenerationHistoryStore>();
+builder.Services.AddHttpClient<OpenAiTextService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.openai.com/v1/");
+    client.Timeout = TimeSpan.FromMinutes(2);
+
+    var apiKey = builder.Configuration["OpenAI:ApiKeyText"];
+
+    if (string.IsNullOrWhiteSpace(apiKey))
+    {
+        throw new InvalidOperationException(
+            "OpenAI:ApiKey is not configured.");
+    }
+
+    client.DefaultRequestHeaders.Authorization =
+        new AuthenticationHeaderValue("Bearer", apiKey);
+});
 
 var app = builder.Build();
 
@@ -129,6 +145,25 @@ app.MapPost("/api/images/compare", async (
         ]);
 
     return Results.Ok(response);
+});
+
+app.MapPost("/api/text/generate", async (
+    GenerateTextRequest request,
+    OpenAiTextService textService,
+    CancellationToken ct) =>
+{
+    if (string.IsNullOrWhiteSpace(request.Brief))
+    {
+        return Results.BadRequest("Brief is required.");
+    }
+
+    var generatedText =
+        await textService.GenerateMarketingTextAsync(
+            request.Brief,
+            ct);
+
+    return Results.Ok(new GenerateTextResponse(
+        GeneratedText: generatedText));
 });
 
 app.MapGet("/api/images/history", (GenerationHistoryStore store) =>
